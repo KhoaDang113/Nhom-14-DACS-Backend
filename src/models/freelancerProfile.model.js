@@ -5,11 +5,11 @@ const freelancerProfileSchema = new mongoose.Schema(
     freelancerId: {
       type: mongoose.Types.ObjectId,
       ref: "User",
-      require: true,
+      required: true,
     },
     fullName: {
       type: String,
-      require: true,
+      required: true,
     },
     industry: { type: String },
     hardSkill: { type: String },

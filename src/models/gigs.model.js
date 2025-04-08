@@ -3,29 +3,33 @@ const mongoose = require("mongoose");
 const gigSchema = new mongoose.Schema(
   {
     freelancerId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.String,
       ref: "User",
       required: true,
     },
     title: {
       type: String,
-      require: true,
+      required: true,
     },
     description: {
       type: String,
-      require: true,
+      required: true,
+    },
+    keywords: {
+      type: [String],
+      // required: true,
     },
     price: {
       type: mongoose.Types.Decimal128,
-      require: true,
+      required: true,
     },
     media: {
       type: [String],
-      require: true,
+      required: true,
     },
     duration: {
       type: Number,
-      require: true,
+      required: true,
     },
     status: {
       type: String,
@@ -54,5 +58,14 @@ const gigSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
+gigSchema.index(
+  { title: "text", description: "text", keywords: "text" },
+  {
+    weights: {
+      title: 2,
+      description: 1,
+      keywords: 1,
+    },
+  }
+);
 module.exports = mongoose.model("Gig", gigSchema);

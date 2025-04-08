@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const responeSchema = new mongoose.Schema(
+const paymentSchema = new mongoose.Schema(
   {
     orderId: {
       type: mongoose.Types.ObjectId,
@@ -33,4 +33,4 @@ const responeSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Respone", responeSchema);
+module.exports = mongoose.model("Payment", paymentSchema);

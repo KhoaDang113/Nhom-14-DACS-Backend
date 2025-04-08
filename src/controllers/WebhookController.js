@@ -20,10 +20,12 @@ const handleWebHook = async (req, res) => {
 
     const { id, ...atributes } = evt.data;
     const evenType = evt.type;
+    // console.log("id user: ", id);
+    // console.log("evt: ", evt);
     if (evenType === "user.created") {
       const nameUser = `${atributes.first_name} ${atributes.last_name}`;
-      console.log(nameUser);
       const user = new User({
+        clerkId: id,
         name: nameUser,
         email: atributes.email_addresses[0]?.email_address,
         role: "customer",

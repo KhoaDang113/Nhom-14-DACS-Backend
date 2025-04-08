@@ -13,8 +13,7 @@ const orderSchema = new mongoose.Schema(
       require: true,
     },
     freelancerId: {
-      type: mongoose.Types.ObjectId,
-      ref: "User",
+      type: String,
       require: true,
     },
     title: {
@@ -25,10 +24,29 @@ const orderSchema = new mongoose.Schema(
       type: [String],
       require: true,
     },
+    requirements: {
+      type: String,
+      required: true, // Bắt buộc customer phải gửi yêu cầu
+    },
+    // attachments: {
+    //   type: [String], // Lưu danh sách URL của file
+    //   default: [],
+    // },
     status: {
       type: String,
-      enum: ["pending", "accepted", "in_progress", "completed", "canceled"],
-      require: true,
+      enum: [
+        "pending",
+        "approved",
+        "in_progress",
+        "completed",
+        "canceled",
+        "rejected",
+      ],
+      default: "pending",
+    },
+    cancelRequestId: {
+      type: mongoose.Types.ObjectId,
+      ref: "CancelRequest",
     },
   },
   {

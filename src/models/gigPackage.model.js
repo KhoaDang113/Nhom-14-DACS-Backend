@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-
+const mongoose = require("mongoose");
 const GigPackageSchema = new mongoose.Schema(
   {
     gigId: {
@@ -34,6 +33,4 @@ const GigPackageSchema = new mongoose.Schema(
   }
 );
 
-const GigPackage = mongoose.model("GigPackage", GigPackageSchema);
-
-export default GigPackage;
+module.exports = mongoose.model("GigPackage", GigPackageSchema);
