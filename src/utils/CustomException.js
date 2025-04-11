@@ -1,6 +1,9 @@
-const CustomException = (message, status) => {
-  const error = new Error(message);
-  error.status = status;
-  return error;
-};
+class CustomException extends Error {
+  constructor(message, status) {
+    super(message);
+    this.status = status;
+    this.name = "CustomException";
+  }
+}
+
 module.exports = CustomException;

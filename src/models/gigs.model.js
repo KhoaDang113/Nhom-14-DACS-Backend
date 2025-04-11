@@ -3,8 +3,7 @@ const mongoose = require("mongoose");
 const gigSchema = new mongoose.Schema(
   {
     freelancerId: {
-      type: mongoose.Schema.Types.String,
-      ref: "User",
+      type: String,
       required: true,
     },
     title: {
@@ -33,9 +32,10 @@ const gigSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "hidden", "deleted"],
+      enum: ["pending", "approved", "rejected", "hidden"],
       default: "pending",
     },
+    isDeleted: { type: Boolean, default: false },
     category_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",

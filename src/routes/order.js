@@ -1,27 +1,41 @@
 const orderRouter = require("express").Router();
 const orderController = require("../controllers/OrderController");
-const authMiddleware = require("../middlewares/userMiddleware");
+const authUser = require("../middlewares/authUser");
+const validate = require("../middlewares/validateMiddleware");
+const { roleMiddleware } = require("../middlewares/roleMiddleware");
+const {
+  requestCreateOrder,
+  requestCancelOrder,
+  responseCreateOrder,
+  responseCancelOrder,
+} = require("../validator/orderValidation");
 
 orderRouter.post(
   "/request-create/:idGig",
-  authMiddleware,
+  authUser,
+  validate(requestCreateOrder),
   orderController.requestCreateOrder
 );
 orderRouter.post(
   "/response-request-create/:idOrder",
-  authMiddleware,
+  authUser,
+  roleMiddleware("freelancer"),
+  validate(responseCreateOrder),
   orderController.responseCreateOrder
 );
 orderRouter.post(
   "/request-cancel/:idOrder",
-  authMiddleware,
+  authUser,
+  validate(requestCancelOrder),
   orderController.requestCancelOrder
 );
 orderRouter.post(
   "/response-request-cancel/:idCancelRequest",
-  authMiddleware,
+  authUser,
+  roleMiddleware("freelancer"),
+  validate(responseCancelOrder),
   orderController.responseCancelOrder
 );
-orderRouter.get("/get-list", authMiddleware, orderController.getListOrder);
+orderRouter.get("/get-list", authUser, orderController.getListOrder);
 
 module.exports = orderRouter;

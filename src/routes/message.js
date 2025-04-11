@@ -1,8 +1,22 @@
 const messageController = require("../controllers/MessageController");
-const userMiddleware = require("../middlewares/userMiddleware");
+const authUser = require("../middlewares/authUser");
 const messageRouter = require("express").Router();
-
-messageRouter.post("/create", userMiddleware, messageController.createMessage);
-messageRouter.get("/get-all", userMiddleware, messageController.getAllMessage);
+const validator = require("../middlewares/validateMiddleware");
+const {
+  createMessageValidator,
+  getAllMessageValidator,
+} = require("../validator/messageValidatior");
+messageRouter.post(
+  "/create",
+  authUser,
+  validator(createMessageValidator),
+  messageController.createMessage
+);
+messageRouter.get(
+  "/get-all",
+  authUser,
+  validator(getAllMessageValidator),
+  messageController.getAllMessage
+);
 
 module.exports = messageRouter;

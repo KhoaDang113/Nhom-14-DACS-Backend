@@ -1,59 +1,54 @@
 const { CustomException } = require("../utils");
-const { gigModel, userModel, favoriteModel } = require("../models");
+const { gigModel, favoriteModel } = require("../models");
+const catchAsync = require("../utils/CatchAsync");
 
-const isFavorite = async (req, res) => {
-  try {
-    const idGig = req.params.idGig;
-    const gig = await gigModel.findById(idGig);
-    if (!gig) throw CustomException("Gig not found", 404);
-    const user = await userModel.findOne({ clerkId: req.UserID });
-    if (!user) throw CustomException("User not found", 404);
-    const favoriteData = {
-      gigId: gig._id,
-      customerId: user._id,
-    };
+const isFavorite = catchAsync(async (req, res) => {
+  const { idGig } = req.params;
 
-    const isFavoriteBoolean = await favoriteModel.findOne(favoriteData);
-    if (isFavoriteBoolean) {
-      await favoriteModel.deleteOne(favoriteData);
-      return res.status(200).json({
-        error: false,
-        message: "Favorite is removed successfully",
-      });
-    }
-    const favorite = await favoriteModel(favoriteData);
-    await favorite.save();
-    return res.status(201).json({
-      error: false,
-      message: "Favorite is add successfully",
-      favorite,
-    });
-  } catch (error) {
-    return res.status(500).json({ message: error.message, error: true });
-  }
-};
+  const gig = await gigModel.findOne({ _id: idGig, isDeleted: false });
+  if (!gig) throw new CustomException("Gig not found", 404);
 
-const getListFavorite = async (req, res) => {
-  try {
-    const user = await userModel.findOne({ clerkId: req.UserID });
-    if (!user) throw CustomException("User not found", 404);
-    const favorites = await favoriteModel
-      .find({ customerId: user._id })
-      .populate({
-        path: "gigId",
-      });
+  const favoriteData = {
+    gigId: gig._id,
+    customerId: req.user._id,
+  };
+
+  const isFavoriteBoolean = await favoriteModel.findOne(favoriteData);
+
+  if (isFavoriteBoolean) {
+    await favoriteModel.deleteOne(favoriteData);
     return res.status(200).json({
       error: false,
-      message: "Favorites retrieved successfully",
-      favorites,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      error: true,
-      message: error.message,
+      isFavorite: false,
+      message: "Favorite is removed successfully",
     });
   }
-};
+
+  const favorite = await new favoriteModel(favoriteData).save();
+
+  return res.status(201).json({
+    error: false,
+    message: "Favorite is added successfully",
+    isFavorite: true,
+    favorite: {
+      _id: favorite._id,
+      gigId: favorite.gigId,
+    },
+  });
+});
+
+const getListFavorite = catchAsync(async (req, res) => {
+  const favorites = await favoriteModel
+    .find({ customerId: req.user._id })
+    .populate("gigId", "_id freelancerId title")
+    .select("_id gigId customerId");
+
+  return res.status(200).json({
+    error: false,
+    message: "Favorites retrieved successfully",
+    favorites,
+  });
+});
 
 module.exports = {
   isFavorite,

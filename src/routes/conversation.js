@@ -1,15 +1,19 @@
 const conversationController = require("../controllers/ConversationController");
 const conversationRouter = require("express").Router();
-const userMiddleware = require("../middlewares/userMiddleware");
-
+const authUser = require("../middlewares/authUser");
+const {
+  createConversationValidator,
+} = require("../validator/conversationValidator");
+const validator = require("../middlewares/validateMiddleware");
 conversationRouter.post(
   "/create-or-get",
-  userMiddleware,
+  authUser,
+  validator(createConversationValidator),
   conversationController.createOrGetConversation
 );
 conversationRouter.get(
   "/get-coversation",
-  userMiddleware,
+  authUser,
   conversationController.getAllConversation
 );
 

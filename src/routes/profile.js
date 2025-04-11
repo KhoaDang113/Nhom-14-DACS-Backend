@@ -1,11 +1,21 @@
 const profileRouter = require("express").Router();
 const profileController = require("../controllers/ProfileController");
-const userMiddleware = require("../middlewares/userMiddleware");
-
+const authUser = require("../middlewares/authUser");
+const { roleMiddleware } = require("../middlewares/roleMiddleware");
+const validate = require("../middlewares/validateMiddleware");
+const { createFreelancerProfile } = require("../validator/profileValidation");
 profileRouter.post(
   "/create",
-  userMiddleware,
+  authUser,
+  roleMiddleware("customer"),
+  validate(createFreelancerProfile),
   profileController.createFreelancerProfile
+);
+profileRouter.get(
+  "/get",
+  authUser,
+  roleMiddleware("freelancer"),
+  profileController.getFreelancerProfile
 );
 
 module.exports = profileRouter;

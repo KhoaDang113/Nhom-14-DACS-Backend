@@ -1,12 +1,9 @@
 const favoriteRouter = require("express").Router();
 const favoriteController = require("../controllers/FavoriteController");
-const userMiddleware = require("../middlewares/userMiddleware");
+const authUser = require("../middlewares/authUser"); // thay thế 2 middleware cũ
 
-favoriteRouter.post("/:idGig", userMiddleware, favoriteController.isFavorite);
-favoriteRouter.get(
-  "/get-list",
-  userMiddleware,
-  favoriteController.getListFavorite
-);
+favoriteRouter.post("/:idGig", authUser, favoriteController.isFavorite);
+
+favoriteRouter.get("/get-list", authUser, favoriteController.getListFavorite);
 
 module.exports = favoriteRouter;

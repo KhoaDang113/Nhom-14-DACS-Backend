@@ -1,122 +1,89 @@
-const { gigModel, userModel, orderModel } = require("../models");
+const catchAsync = require("../utils/CatchAsync");
+const { gigModel, orderModel } = require("../models");
 
 const { CustomException } = require("../utils");
 
-const createGig = async (req, res) => {
-  try {
-    const user = await userModel.findOne({ clerkId: req.UserID });
-    if (!user) {
-      throw CustomException("User not found", 404);
-    }
-    if (user.role !== "freelancer") {
-      throw CustomException("Only freelancers can create gigs", 403);
-    }
-    const gigData = {
-      ...req.body,
-      freelancerId: req.UserID,
-    };
-    const gig = new gigModel(gigData);
-    await gig.save();
-    return res.status(201).json({ message: "Gig created successfully", gig });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
+const createGig = catchAsync(async (req, res) => {
+  const gigData = { ...req.body, freelancerId: req.UserID };
+  const gig = await new gigModel(gigData).save();
+
+  res.status(201).json({
+    message: "Gig created successfully",
+    gig: {
+      _id: gig._id,
+      title: gig.title,
+      price: gig.price,
+      media: gig.media,
+      duration: gig.duration,
+      category_id: gig.category_id,
+      status: gig.status,
+    },
+  });
+});
+
+const deleteGig = catchAsync(async (req, res) => {
+  console.log("gig:", req.gig);
+
+  if (req.gig.isDeleted) {
+    throw new CustomException("Gig already deleted", 400);
   }
-};
 
-const deleteGig = async (req, res) => {
-  try {
-    const idGig = req.params.id;
-    const gig = await gigModel.findById(idGig);
-    const user = await userModel.findOne({ clerkId: req.UserID });
+  req.gig.isDeleted = true;
+  await req.gig.save();
 
-    if (user.role !== "freelancer") {
-      throw CustomException("Only freelancers can delete gigs", 403);
-    }
-    if (!gig) {
-      return res.status(200).json({ message: "Gig not found" });
-    }
-    if (req.UserID !== gig.freelancerId) {
-      throw CustomException(
-        "Invalid request! Cannot delete other user's gigs!",
-        403
-      );
-    }
-    await gigModel.deleteOne({ _id: idGig });
-    return res.send({
-      error: false,
-      message: "Gig had been successfully deleted!",
-    });
-  } catch (error) {
-    return res.status(500).send({
-      message: "Server error",
-      error: error.message,
-    });
-  }
-};
+  res.send({ error: false, message: "Gig had been successfully deleted!" });
+});
 
-const getListGig = async (req, res) => {
-  try {
-    const user = await userModel.findOne({ clerkId: req.UserID });
-    if (user.role !== "freelancer") {
-      throw CustomException("Only freelancers can get their list gigs", 403);
-    }
-    let listGig = await gigModel
-      .find({ freelancerId: req.UserID })
-      .select(
-        "title description price media duration status category_id createdAt updatedAt"
-      );
-    if (!listGig || listGig.length === 0) {
-      return res.status(200).json({ message: "No gigs found" });
-    }
-    // console.log("List gigs:", listGig);
+const getListGig = catchAsync(async (req, res) => {
+  const { page = 1 } = req.query;
 
-    return res.status(200).json({
-      error: false,
-      message: "Get list gigs successfully",
-      listGig,
-    });
-  } catch (error) {
-    return res.json(500, { message: "Server error", error: error.message });
-  }
-};
+  const query = {
+    freelancerId: req.UserID,
+    isDeleted: false,
+  };
 
-const updateGig = async (req, res) => {
-  try {
-    const idGig = req.params.id;
-    const user = await userModel.findOne({ clerkId: req.UserID });
-    if (user.role !== "freelancer") {
-      throw CustomException("Only freelancers can get their list gigs", 403);
-    }
-    const gig = await gigModel.findById(idGig);
-    if (!gig) {
-      return res.status(200).json({ message: "Gig not found" });
-    }
-    if (req.UserID !== gig.freelancerId) {
-      throw CustomException(
-        "Invalid request! Cannot update other user's gigs!",
-        403
-      );
-    }
-    const updatedGig = await gigModel.findByIdAndUpdate(
-      idGig,
+  const gigs = await gigModel
+    .find(query)
+    .select(
+      "title description price media duration status category_id createdAt updatedAt"
+    )
+    .skip((page - 1) * 10)
+    .limit(Number(10))
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const total = await gigModel.countDocuments(query);
+  const totalPages = Math.ceil(total / 10);
+
+  return res.status(200).json({
+    error: false,
+    message: gigs.length ? "Gigs retrieved successfully" : "No gigs found",
+    pagination: {
+      currentPage: Number(page),
+      totalPages,
+      totalResults: total,
+    },
+    gigs,
+  });
+});
+
+const updateGig = catchAsync(async (req, res) => {
+  const updatedGig = await gigModel
+    .findOneAndUpdate(
+      { _id: req.gig._id, isDeleted: false },
       { $set: req.body },
       { new: true, runValidators: true }
+    )
+    .select(
+      "title description price media duration status category_id updatedAt"
     );
-    return res.status(200).json({
-      error: false,
-      message: "Gig updated successfully",
-      gig: updatedGig,
-    });
-  } catch (error) {
-    return res
-      .status(500)
-      .json(500, { message: "Server error", error: error.message });
-  }
-};
+  res.status(200).json({
+    error: false,
+    message: "Gig updated successfully",
+    gig: updatedGig,
+  });
+});
 
-//check pre status to hidden
 const getPreviousStatus = (gig) => {
   if (gig.approved_at && gig.rejected_at) {
     return gig.approved_at > gig.rejected_at ? "approved" : "rejected";
@@ -126,57 +93,32 @@ const getPreviousStatus = (gig) => {
   return "pending";
 };
 
-const hideGig = async (req, res) => {
-  try {
-    const idGig = req.params.id;
-    const user = await userModel.findOne({ clerkId: req.UserID });
-    const gig = await gigModel.findById(idGig);
-    if (user.role !== "freelancer") {
-      throw CustomException("Only freelancers can hide their gigs", 403);
-    }
-    if (!gig) {
-      return res.status(200).json({ message: "Gig not found" });
-    }
-    console.log("req.UserID", req.UserID);
-    console.log("gig.freelancerId", gig.freelancerId);
+const hideGig = catchAsync(async (req, res) => {
+  const gig = req.gig;
 
-    if (req.UserID !== gig.freelancerId) {
-      throw CustomException(
-        "Invalid request! Cannot hide other user's gigs!",
-        403
-      );
-    }
-    const orderExists = await orderModel.findOne({ gigId: idGig });
-    if (orderExists) {
-      throw CustomException("Cannot hide gig with existing orders", 400);
-    }
-    let previousStatus = getPreviousStatus(idGig);
-    let newStatus;
-    let message;
-    if (gig.status == "hidden") {
-      newStatus = previousStatus;
-      message = "Gig has been successfully unhidden";
-    } else {
-      newStatus = "hidden";
-      message = "Gig has been successfully unhidden";
-    }
+  const orderExists = await orderModel.findOne({ gigId: gig._id });
+  if (orderExists)
+    throw new CustomException("Cannot hide gig with existing orders", 400);
 
-    const updatedGig = await gigModel.findByIdAndUpdate(
-      idGig,
-      { $set: { status: newStatus } },
-      { new: true }
-    );
+  const previousStatus = getPreviousStatus(gig);
+  const isHidden = gig.status === "hidden";
 
-    return res.status(200).json({
-      error: false,
-      message: message,
-      gig: updatedGig,
-    });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
-  }
+  const newStatus = isHidden ? previousStatus : "hidden";
+  const message = isHidden
+    ? "Gig has been successfully unhidden"
+    : "Gig has been successfully hidden";
+
+  const updatedGig = await gigModel
+    .findByIdAndUpdate(gig._id, { $set: { status: newStatus } }, { new: true })
+    .select("title status previousStatus updatedAt");
+
+  res.status(200).json({ error: false, message, gig: updatedGig });
+});
+
+module.exports = {
+  createGig,
+  deleteGig,
+  getListGig,
+  updateGig,
+  hideGig,
 };
-
-module.exports = { createGig, deleteGig, getListGig, updateGig, hideGig };

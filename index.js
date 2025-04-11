@@ -9,6 +9,8 @@ const {
   ClerkExpressRequireAuth,
   ClerkExpressWithAuth,
 } = require("@clerk/clerk-sdk-node");
+const errorHandler = require("./src/middlewares/errorHandler");
+const connectDB = require("./src/config/db");
 
 //Import routes
 const webhookRouter = require("./src/routes/webhook");
@@ -19,7 +21,7 @@ const orderRouter = require("./src/routes/order");
 const favoriteRouter = require("./src/routes/favorite");
 const conversationRouter = require("./src/routes/conversation");
 const messageRouter = require("./src/routes/message");
-
+const gigAdminRouter = require("./src/routes/Admin/gigAdmin");
 dotenv.config();
 
 const clerkPublishableKey = process.env.CLERK_PUBLISHABLE_KEY;
@@ -37,16 +39,8 @@ app.use(
 app.use(cors());
 app.use(morgan("common"));
 app.use(express.json());
-const connect = async () => {
-  try {
-    await mongoose.connect(process.env.MONGOOSE_URL);
-    console.log("Mongoose connect success");
-  } catch (error) {
-    console.log("error: ", error);
-  }
-};
 
-connect();
+connectDB();
 
 //Routes
 app.use("/api/webhooks", webhookRouter);
@@ -56,8 +50,9 @@ app.use("/api/order", orderRouter);
 app.use("/api/favorite", favoriteRouter);
 app.use("/api/conversation", conversationRouter);
 app.use("/api/message", messageRouter);
+app.use("/api/admin/gigs", gigAdminRouter);
 app.use("/", sitRouter);
-
+app.use(errorHandler);
 const port = 5000;
 app.listen(port, () => {
   console.log(`Server listen in port ${port}`);

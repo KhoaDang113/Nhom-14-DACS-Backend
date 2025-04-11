@@ -1,91 +1,86 @@
-const { messageModel, userModel, conversationModel } = require("../models");
-const { CustomException } = require("../utils");
+const { messageModel, conversationModel } = require("../models");
+const { CustomException, catchAsync } = require("../utils");
+const createMessage = catchAsync(async (req, res) => {
+  const { conversationId, content } = req.body;
 
-const createMessage = async (req, res) => {
-  try {
-    const user = await userModel.findOne({ clerkId: req.UserID });
-
-    const { conversationId, content } = req.body;
-
-    const conversation = await conversationModel.findById(conversationId);
-    if (!conversation) {
-      throw CustomException("Conversation is not exists", 404);
-    }
-    if (
-      user._id.toString() !== conversation.customerId.toString() &&
-      user._id.toString() !== conversation.freelancerId.toString()
-    ) {
-      throw CustomException(
-        "Unauthorized: You are not part of this conversation",
-        403
-      );
-    }
-
-    const messageData = {
-      conversationId: conversationId,
-      userId: user._id,
-      content: content,
-    };
-    const Newmessage = new messageModel(messageData);
-    await Newmessage.save();
-    conversation.lastMessage = content;
-    conversation.readBySeller =
-      user._id.toString() === conversation.freelancerId.toString();
-    conversation.readByBuyer =
-      user._id.toString() === conversation.customerId.toString();
-    await conversation.save();
-    return res.status(201).json({
-      error: true,
-      message: "Create message successfully",
-      Newmessage,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      error: true,
-      message: error.message,
-    });
+  const conversation = await conversationModel.findById(conversationId);
+  if (!conversation) {
+    throw new CustomException("Conversation does not exist", 404);
   }
-};
 
-const getAllMessage = async (req, res) => {
-  try {
-    const user = await userModel.findOne({ clerkId: req.UserID });
-    const { conversationId } = req.body;
-    const conversation = await conversationModel.findById(conversationId);
-    if (!conversation) {
-      throw CustomException("Conversation is not exists", 404);
-    }
-    if (
-      user._id.toString() !== conversation.customerId.toString() &&
-      user._id.toString() !== conversation.freelancerId.toString()
-    ) {
-      throw CustomException(
-        "Unauthorized: You are not part of this conversation",
-        403
-      );
-    }
-    const messages = await messageModel
-      .find({ conversationId })
-      .populate({ path: "userId", select: "fullName" })
-      .sort({ created_at: 1 });
+  const isParticipant =
+    req.user._id.equals(conversation.customerId) ||
+    req.user._id.equals(conversation.freelancerId);
 
-    if (user._id.toString() === conversation.customerId.toString()) {
-      conversation.readByBuyer = true;
-    } else if (user._id.toString() === conversation.freelancerId.toString()) {
-      conversation.readBySeller = true;
-    }
-    await conversation.save();
-
-    return res.status(200).json({
-      error: false,
-      message: "Messages retrieved successfully",
-      messages,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      error: true,
-      message: error.message,
-    });
+  if (!isParticipant) {
+    throw new CustomException(
+      "Unauthorized: You are not part of this conversation",
+      403
+    );
   }
-};
+
+  const messageData = {
+    conversationId,
+    userId: req.user._id,
+    content,
+  };
+
+  const newMessage = await messageModel.create(messageData);
+
+  conversation.lastMessage = content;
+  conversation.readBySeller = req.user._id.equals(conversation.freelancerId);
+  conversation.readByBuyer = req.user._id.equals(conversation.customerId);
+  await conversation.save();
+
+  return res.status(201).json({
+    error: false,
+    message: "Message created successfully",
+    message: {
+      _id: newMessage._id,
+      userId: newMessage.userId,
+      content: newMessage.content,
+      createdAt: newMessage.createdAt,
+    },
+  });
+});
+
+const getAllMessage = catchAsync(async (req, res) => {
+  const { conversationId } = req.body;
+
+  const conversation = await conversationModel.findById(conversationId);
+  if (!conversation) {
+    throw new CustomException("Conversation does not exist", 404);
+  }
+
+  const isParticipant =
+    req.user._id.equals(conversation.customerId) ||
+    req.user._id.equals(conversation.freelancerId);
+
+  if (!isParticipant) {
+    throw new CustomException(
+      "Unauthorized: You are not part of this conversation",
+      403
+    );
+  }
+
+  const messages = await messageModel
+    .find({ conversationId })
+    .populate({ path: "userId", select: "fullName" })
+    .select("_id conversationId userId content createdAt")
+    .sort({ created_at: 1 });
+
+  if (req.user._id.equals(conversation.customerId)) {
+    conversation.readByBuyer = true;
+  } else if (req.user._id.equals(conversation.freelancerId)) {
+    conversation.readBySeller = true;
+  }
+  await conversation.save();
+
+  return res.status(200).json({
+    error: false,
+    message: "Messages retrieved successfully",
+    messages,
+  });
+});
+
 module.exports = { createMessage, getAllMessage };
