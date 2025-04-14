@@ -4,30 +4,36 @@ const CustomException = require("../utils/CustomException");
 const { catchAsync, formatGigs } = require("../utils");
 
 const getAllCategory = catchAsync(async (req, res) => {
-  const categories = await categoryModel.find({ parentCategory: null }).lean();
+  const categories = await categoryModel
+    .find({ parentCategory: null, isDeleted: false })
+    .lean();
 
-  const categoriesChildren = await Promise.all(
+  const categoriesWithChildren = await Promise.all(
     categories.map(async (category) => {
       const subcategories = await categoryModel
-        .find({ parentCategory: category._id })
+        .find({ parentCategory: category._id, isDeleted: false })
         .lean();
+
       const subcategoriesWithChildren = await Promise.all(
         subcategories.map(async (subcategory) => {
-          const subcategoryChildren = await categoryModel
-            .find({ parentCategory: subcategory._id })
+          const children = await categoryModel
+            .find({ parentCategory: subcategory._id, isDeleted: false })
             .lean();
-          return { ...subcategory, subcategoryChildren };
+          return { ...subcategory, children };
         })
       );
-      return { ...category, subcategories: subcategoriesWithChildren };
+
+      return { ...category, children: subcategoriesWithChildren };
     })
   );
+
   return res.status(200).json({
     error: false,
     message: "Categories retrieved successfully",
-    data: categoriesChildren,
+    data: categoriesWithChildren,
   });
 });
+
 // const searchGig = async (req, res) => {
 //   try {
 //     const { keyword, category, minPrice, maxPrice } = req.query;

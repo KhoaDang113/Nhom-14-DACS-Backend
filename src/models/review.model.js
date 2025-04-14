@@ -12,7 +12,7 @@ const reviewSchema = new mongoose.Schema(
       ref: "User",
       require: true,
     },
-    start: {
+    star: {
       type: Number,
       require: true,
       max: 5,

@@ -5,24 +5,35 @@ const complaintSchema = new mongoose.Schema(
     gigId: {
       type: mongoose.Types.ObjectId,
       ref: "Gig",
-      require: true,
+      required: true,
     },
-    UserId: {
+    userId: {
       type: mongoose.Types.ObjectId,
       ref: "User",
-      require: true,
+      required: true,
+    },
+    reason: {
+      type: String,
+      enum: [
+        "dịch vụ bị cấm",
+        "nội dung không phù hợp",
+        "không nguyên bản",
+        "vi phạm quyền sở hữu trí tuệ",
+        "khác",
+      ],
+      required: true,
     },
     description: {
       type: String,
-      require: true,
+      default: "",
     },
     status: {
       type: String,
       enum: ["pending", "resolved", "rejected"],
+      default: "pending",
     },
     resolvedAt: {
       type: Date,
-      require: true,
     },
   },
   {

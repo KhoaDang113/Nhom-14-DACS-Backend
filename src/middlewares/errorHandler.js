@@ -7,9 +7,9 @@ const errorHandler = (err, req, res, next) => {
     message,
   };
 
-  if (process.env.NODE_ENV !== "production") {
-    response.stack = err.stack;
-  }
+  // if (process.env.NODE_ENV !== "production") {
+  //   response.stack = err.stack;
+  // }
 
   res.status(statusCode).json(response);
 };

@@ -4,11 +4,11 @@ const authUser = require("../middlewares/authUser");
 const {
   createConversationValidator,
 } = require("../validator/conversationValidator");
-const validator = require("../middlewares/validateMiddleware");
+const validate = require("../middlewares/validateMiddleware");
 conversationRouter.post(
   "/create-or-get",
   authUser,
-  validator(createConversationValidator),
+  validate(createConversationValidator),
   conversationController.createOrGetConversation
 );
 conversationRouter.get(

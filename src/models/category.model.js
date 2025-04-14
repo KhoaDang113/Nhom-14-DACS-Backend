@@ -15,6 +15,10 @@ const categorySchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
     parentCategory: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",

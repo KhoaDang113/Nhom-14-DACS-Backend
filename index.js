@@ -21,7 +21,16 @@ const orderRouter = require("./src/routes/order");
 const favoriteRouter = require("./src/routes/favorite");
 const conversationRouter = require("./src/routes/conversation");
 const messageRouter = require("./src/routes/message");
+const complaintRouter = require("./src/routes/complaint");
+const reviewRouter = require("./src/routes/review");
+const responseRouter = require("./src/routes/response");
+
+//Import routes of admin
 const gigAdminRouter = require("./src/routes/Admin/gigAdmin");
+const categoryAdminRouter = require("./src/routes/Admin/categoryAdmin");
+const complaintAdminRouter = require("./src/routes/Admin/complaintAdmin");
+const userAdminRouter = require("./src/routes/Admin/userAdmin");
+const dashboardAdminRouter = require("./src/routes/Admin/dashboardAdmin");
 dotenv.config();
 
 const clerkPublishableKey = process.env.CLERK_PUBLISHABLE_KEY;
@@ -42,7 +51,7 @@ app.use(express.json());
 
 connectDB();
 
-//Routes
+//Routes of customer and freelancer
 app.use("/api/webhooks", webhookRouter);
 app.use("/api/gigs", gigRouter);
 app.use("/api/profile", profileRouter);
@@ -50,9 +59,21 @@ app.use("/api/order", orderRouter);
 app.use("/api/favorite", favoriteRouter);
 app.use("/api/conversation", conversationRouter);
 app.use("/api/message", messageRouter);
+app.use("/api/complaint", complaintRouter);
+app.use("/api/review", reviewRouter);
+app.use("/api/response", responseRouter);
+
+//Routes of admin
 app.use("/api/admin/gigs", gigAdminRouter);
+app.use("/api/admin/category", categoryAdminRouter);
+app.use("/api/admin/complaint", complaintAdminRouter);
+app.use("/api/admin/user", userAdminRouter);
+app.use("/api/admin/dashboard", dashboardAdminRouter);
+
+//Common router
 app.use("/", sitRouter);
 app.use(errorHandler);
+
 const port = 5000;
 app.listen(port, () => {
   console.log(`Server listen in port ${port}`);

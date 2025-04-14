@@ -18,6 +18,7 @@ const createGigValidator = [
     .optional()
     .isArray({ min: 1 })
     .withMessage("Media must be an array with at least one item"),
+  body("status").not().exists().withMessage("You cannot set status manually"),
 ];
 
 const updateGigValidator = [
@@ -37,6 +38,7 @@ const updateGigValidator = [
     .isInt({ min: 1 })
     .withMessage("Duration must be at least 1 day"),
   body("media").optional().isArray().withMessage("Media must be an array"),
+  body("status").not().exists().withMessage("You cannot set status manually"),
 ];
 
 module.exports = {

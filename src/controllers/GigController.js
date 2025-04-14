@@ -6,7 +6,7 @@ const { CustomException } = require("../utils");
 const createGig = catchAsync(async (req, res) => {
   const gigData = { ...req.body, freelancerId: req.UserID };
   const gig = await new gigModel(gigData).save();
-
+  delete req.body.status;
   res.status(201).json({
     message: "Gig created successfully",
     gig: {
@@ -68,6 +68,7 @@ const getListGig = catchAsync(async (req, res) => {
 });
 
 const updateGig = catchAsync(async (req, res) => {
+  delete req.body.status;
   const updatedGig = await gigModel
     .findOneAndUpdate(
       { _id: req.gig._id, isDeleted: false },

@@ -10,6 +10,7 @@ async function formatGig(gig) {
     category_id: gig.category_id,
     createdAt: gig.createdAt,
     freelancer: gig.freelancerId,
+    isDeleted: gig.isDeleted,
     name: user?.name || null,
     email: user?.email || null,
   };

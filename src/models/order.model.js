@@ -34,14 +34,7 @@ const orderSchema = new mongoose.Schema(
     // },
     status: {
       type: String,
-      enum: [
-        "pending",
-        "approved",
-        "in_progress",
-        "completed",
-        "canceled",
-        "rejected",
-      ],
+      enum: ["pending", "approved", "completed", "canceled", "rejected"],
       default: "pending",
     },
     cancelRequestId: {
