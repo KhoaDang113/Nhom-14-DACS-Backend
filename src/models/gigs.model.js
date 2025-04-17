@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
 
+const mediaSchema = new mongoose.Schema({
+  type: { type: String, enum: ["image", "video"], required: true },
+  url: { type: String, required: true },
+});
+
 const gigSchema = new mongoose.Schema(
   {
     freelancerId: {
@@ -22,10 +27,7 @@ const gigSchema = new mongoose.Schema(
       type: mongoose.Types.Decimal128,
       required: true,
     },
-    media: {
-      type: [String],
-      required: true,
-    },
+    media: [mediaSchema],
     duration: {
       type: Number,
       required: true,

@@ -1,10 +1,15 @@
-const catchAsync = require("../utils/CatchAsync");
 const { gigModel, orderModel } = require("../models");
-
-const { CustomException } = require("../utils");
+const { CustomException, catchAsync } = require("../utils");
 
 const createGig = catchAsync(async (req, res) => {
-  const gigData = { ...req.body, freelancerId: req.UserID };
+  const files = req.files || [];
+  if (files.length === 0) throw new CustomException("Media is required", 400);
+
+  const media = files.map((file) => ({
+    type: file.mimetype.includes("video") ? "video" : "image",
+    url: file.path,
+  }));
+  const gigData = { ...req.body, media, freelancerId: req.UserID };
   const gig = await new gigModel(gigData).save();
   delete req.body.status;
   res.status(201).json({
@@ -69,6 +74,15 @@ const getListGig = catchAsync(async (req, res) => {
 
 const updateGig = catchAsync(async (req, res) => {
   delete req.body.status;
+  const files = req.files;
+  if (files && files.length > 0) {
+    const media = files.map((file) => ({
+      type: file.mimetype.includes("video") ? "video" : "image",
+      url: file.path,
+    }));
+    req.body.media = media;
+  }
+
   const updatedGig = await gigModel
     .findOneAndUpdate(
       { _id: req.gig._id, isDeleted: false },

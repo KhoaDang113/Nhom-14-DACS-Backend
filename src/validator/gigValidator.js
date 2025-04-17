@@ -2,22 +2,48 @@ const { body } = require("express-validator");
 
 const createGigValidator = [
   body("title").notEmpty().withMessage("Title is required"),
+
   body("description").notEmpty().withMessage("Description is required"),
+
   body("price")
     .notEmpty()
-    .isNumeric()
-    .withMessage("Price must be a number")
-    .custom((value) => value > 0)
-    .withMessage("Price must be greater than 0"),
+    .withMessage("Price is required")
+    .isFloat({ gt: 0 })
+    .withMessage("Price must be a number greater than 0")
+    .toFloat(),
+
   body("duration")
     .notEmpty()
+    .withMessage("Duration is required")
     .isInt({ min: 1 })
-    .withMessage("Duration must be at least 1 day"),
+    .withMessage("Duration must be at least 1 day")
+    .toInt(),
+
   body("category_id").notEmpty().withMessage("Category ID is required"),
+
   body("media")
-    .optional()
-    .isArray({ min: 1 })
-    .withMessage("Media must be an array with at least one item"),
+    .notEmpty()
+    .custom((value) => {
+      try {
+        const parsed = JSON.parse(value);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          throw new Error("Media must be a non-empty array");
+        }
+        for (let item of parsed) {
+          if (
+            !item.type ||
+            !["image", "video"].includes(item.type) ||
+            !item.url ||
+            typeof item.url !== "string"
+          ) {
+            throw new Error("Each media item must have a valid type and url");
+          }
+        }
+        return true;
+      } catch (err) {
+        throw new Error("Media must be a valid JSON array with type and url");
+      }
+    }),
   body("status").not().exists().withMessage("You cannot set status manually"),
 ];
 
@@ -37,7 +63,30 @@ const updateGigValidator = [
     .optional()
     .isInt({ min: 1 })
     .withMessage("Duration must be at least 1 day"),
-  body("media").optional().isArray().withMessage("Media must be an array"),
+
+  body("media")
+    .notEmpty()
+    .custom((value) => {
+      try {
+        const parsed = JSON.parse(value);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          throw new Error("Media must be a non-empty array");
+        }
+        for (let item of parsed) {
+          if (
+            !item.type ||
+            !["image", "video"].includes(item.type) ||
+            !item.url ||
+            typeof item.url !== "string"
+          ) {
+            throw new Error("Each media item must have a valid type and url");
+          }
+        }
+        return true;
+      } catch (err) {
+        throw new Error("Media must be a valid JSON array with type and url");
+      }
+    }),
   body("status").not().exists().withMessage("You cannot set status manually"),
 ];
 

@@ -1,6 +1,6 @@
 const gigRouter = require("express").Router();
 const gigController = require("../controllers/GigController");
-
+const uploadCloud = require("../config/cloudinary");
 const authUser = require("../middlewares/authUser");
 const authorizeGigOwner = require("../middlewares/authorizeGigOwner");
 const {
@@ -14,6 +14,7 @@ gigRouter.post(
   "/create",
   authUser,
   roleMiddleware("freelancer"),
+  uploadCloud.array("media", 5),
   validate(createGigValidator),
   gigController.createGig
 );
@@ -38,6 +39,7 @@ gigRouter.put(
   authUser,
   roleMiddleware("freelancer"),
   authorizeGigOwner,
+  uploadCloud.array("media", 5),
   validate(updateGigValidator),
   gigController.updateGig
 );

@@ -7,7 +7,9 @@ const authUser = catchAsync(async (req, res, next) => {
 
   const user = await userModel.findOne({ clerkId: userId });
   if (!user) throw new CustomException("User not found", 404);
-
+  if (user.isLocked) {
+    throw new CustomException("Your account has been locked", 403);
+  }
   req.UserID = userId;
   req.user = user;
 
