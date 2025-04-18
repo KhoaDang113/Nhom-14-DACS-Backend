@@ -86,6 +86,19 @@ const responseCreateOrder = catchAsync(async (req, res) => {
   });
 });
 
+const getListOrderForFreelancer = catchAsync(async (req, res) => {
+  const orders = await orderModel
+    .find({ freelancerId: req.UserID })
+    .populate("gigId", "price")
+    .populate("customerId", "name")
+    .select("_id title price status createdAt");
+  return res.status(200).json({
+    error: false,
+    message: "Get list order successfully",
+    orders,
+  });
+});
+
 const getListOrder = catchAsync(async (req, res) => {
   const orders = await orderModel
     .find({ customerId: req.user._id })
@@ -241,6 +254,7 @@ const completeOrder = catchAsync(async (req, res) => {
 module.exports = {
   requestCreateOrder,
   responseCreateOrder,
+  getListOrderForFreelancer,
   getListOrder,
   requestCancelOrder,
   responseCancelOrder,

@@ -42,6 +42,11 @@ orderRouter.put(
   roleMiddleware("freelancer"),
   orderController.completeOrder
 );
+orderRouter.get(
+  "/get-list-freelancer",
+  authUser,
+  orderController.getListOrderForFreelancer
+);
 orderRouter.get("/get-list", authUser, orderController.getListOrder);
 
 module.exports = orderRouter;

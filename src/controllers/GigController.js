@@ -41,6 +41,18 @@ const deleteGig = catchAsync(async (req, res) => {
   res.send({ error: false, message: "Gig had been successfully deleted!" });
 });
 
+const getSingleGig = catchAsync(async (req, res) => {
+  const gig = await gigModel
+    .findById(req.params.id)
+    .select(
+      "_id title description category_id price media views ordersCompleted"
+    );
+  if (!gig) {
+    throw new CustomException("Gig not found!", 404);
+  }
+  return res.status(200).json({ error: false, gig });
+});
+
 const getListGig = catchAsync(async (req, res) => {
   const { page = 1 } = req.query;
 
@@ -52,7 +64,7 @@ const getListGig = catchAsync(async (req, res) => {
   const gigs = await gigModel
     .find(query)
     .select(
-      "title description price media duration status category_id createdAt updatedAt"
+      "title description price media duration status category_id views ordersCompleted createdAt updatedAt"
     )
     .skip((page - 1) * 10)
     .limit(Number(10))
@@ -136,6 +148,7 @@ const hideGig = catchAsync(async (req, res) => {
 module.exports = {
   createGig,
   deleteGig,
+  getSingleGig,
   getListGig,
   updateGig,
   hideGig,

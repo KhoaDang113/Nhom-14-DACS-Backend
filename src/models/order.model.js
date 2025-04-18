@@ -28,10 +28,6 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true, // Bắt buộc customer phải gửi yêu cầu
     },
-    // attachments: {
-    //   type: [String], // Lưu danh sách URL của file
-    //   default: [],
-    // },
     status: {
       type: String,
       enum: ["pending", "approved", "completed", "canceled", "rejected"],

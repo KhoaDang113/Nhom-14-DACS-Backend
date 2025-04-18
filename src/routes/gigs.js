@@ -33,6 +33,13 @@ gigRouter.get(
   roleMiddleware("freelancer"),
   gigController.getListGig
 );
+gigRouter.get(
+  "/:id/get-single-gig",
+  authUser,
+  roleMiddleware("freelancer"),
+  authorizeGigOwner,
+  gigController.getSingleGig
+);
 
 gigRouter.put(
   "/update/:id",

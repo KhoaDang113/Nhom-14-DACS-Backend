@@ -22,14 +22,14 @@ const getAllCategory = catchAsync(async (req, res) => {
 
       const subcategoriesWithChildren = await Promise.all(
         subcategories.map(async (subcategory) => {
-          const children = await categoryModel
+          const subcategoryChildren = await categoryModel
             .find({ parentCategory: subcategory._id, isDeleted: false })
             .lean();
-          return { ...subcategory, children };
+          return { ...subcategory, subcategoryChildren };
         })
       );
 
-      return { ...category, children: subcategoriesWithChildren };
+      return { ...category, subcategories: subcategoriesWithChildren };
     })
   );
 

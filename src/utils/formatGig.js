@@ -7,6 +7,8 @@ async function formatGig(gig) {
     price: parseFloat(gig.price),
     media: gig.media,
     duration: gig.duration,
+    views: gig.views || 0,
+    ordersCompleted: gig.ordersCompleted || 0,
     category_id: gig.category_id,
     createdAt: gig.createdAt,
     freelancer: gig.freelancerId,
