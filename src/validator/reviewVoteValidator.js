@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { body, param } = require("express-validator");
 const { reviewModel } = require("../models");
 
-const createRespone = [
+const createReviewVote = [
   body("idReview")
     .notEmpty()
     .withMessage("idReview is required")
@@ -16,17 +16,10 @@ const createRespone = [
       }
       return true;
     }),
-  ,
-  body("description")
-    .notEmpty()
-    .withMessage("Description is required")
-    .isLength({ min: 10 })
-    .withMessage("Description must be at least 10 characters long"),
-
-  body("like")
+  body("isHelpFull")
     .optional()
-    .isBoolean()
-    .withMessage("Like must be a boolean value"),
+    .isIn(["like", "dislike", "none"])
+    .withMessage("isHelpFull must like, dislike or none"),
 ];
 
-module.exports = { createRespone };
+module.exports = { createReviewVote };

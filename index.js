@@ -23,6 +23,7 @@ const conversationRouter = require("./src/routes/conversation");
 const messageRouter = require("./src/routes/message");
 const complaintRouter = require("./src/routes/complaint");
 const reviewRouter = require("./src/routes/review");
+const reviewVoteRouter = require("./src/routes/reviewVote");
 const responseRouter = require("./src/routes/response");
 
 //Import routes of admin
@@ -61,6 +62,7 @@ app.use("/api/conversation", conversationRouter);
 app.use("/api/message", messageRouter);
 app.use("/api/complaint", complaintRouter);
 app.use("/api/review", reviewRouter);
+app.use("/api/review-vote", reviewVoteRouter);
 app.use("/api/response", responseRouter);
 
 //Routes of admin

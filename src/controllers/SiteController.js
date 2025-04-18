@@ -1,4 +1,10 @@
-const { gigModel, categoryModel, orderModel } = require("../models");
+const {
+  gigModel,
+  categoryModel,
+  orderModel,
+  userModel,
+  gigPackageModel,
+} = require("../models");
 const mongoose = require("mongoose");
 const CustomException = require("../utils/CustomException");
 const { catchAsync, formatGigs } = require("../utils");
@@ -34,72 +40,33 @@ const getAllCategory = catchAsync(async (req, res) => {
   });
 });
 
-// const searchGig = async (req, res) => {
-//   try {
-//     const { keyword, category, minPrice, maxPrice } = req.query;
-//     if (!keyword || typeof keyword !== "string") {
-//       throw new CustomException("Missing or invalid keyword", 400);
-//     }
-//     const query = {
-//       $text: {
-//         $search: keyword,
-//       },
-//       status: "approved",
-//     };
+const getDetailGig = catchAsync(async (req, res) => {
+  const gig = await gigModel
+    .findOne({
+      _id: req.params.idGig,
+      status: "approved",
+      isDeleted: false,
+    })
+    .select("_id freelancerId title description price media ")
+    .lean();
+  if (!gig) throw new CustomException("Gig not found", 404);
+  const freelancer = await userModel.findOne({ clerkId: gig.freelancerId });
 
-//     if (category) {
-//       if (!mongoose.Types.ObjectId.isValid(category)) {
-//         throw new CustomException(
-//           "Invalid categoryId format (it must be have 24 character)",
-//           400
-//         );
-//       }
-//       query.category_id = category;
-//     }
-//     if (minPrice || maxPrice) {
-//       query.price = {};
-//       if (Number(minPrice) >= Number(maxPrice)) {
-//         return res.status(400).json({
-//           message: "The minimum price must be less than the maximum price",
-//         });
-//       }
-//       if (minPrice)
-//         query.price.$gte = mongoose.Types.Decimal128.fromString(
-//           minPrice.toString()
-//         );
-//       if (maxPrice)
-//         query.price.$lte = mongoose.Types.Decimal128.fromString(
-//           maxPrice.toString()
-//         );
-//     }
-//     const gigs = await gigModel
-//       .find(query, { score: { $meta: "textScore" } })
-//       .sort({ score: { $meta: "textScore" } })
-//       .limit(10)
-//       .select(
-//         "_id title description keywords price media duration status category_id"
-//       )
-//       .lean();
+  if (!freelancer) throw new CustomException("freelancer not found", 404);
+  const gigPackage = await gigPackageModel.findOne({ gigId: gig._id });
+  return res.status(200).json({
+    gig,
+    freelancerId: freelancer._id,
+    packageId: gigPackage ? gigPackage._id : null,
+  });
+});
 
-//     if (!gigs.length) {
-//       return res.status(404).json({ message: "No gigs found" });
-//     }
-//     return res.status(200).json({
-//       message: "Gigs retrieved successfully",
-//       gigs,
-//     });
-//   } catch (error) {
-//     return res
-//       .status(500)
-//       .json({ message: "Server error", error: error.message });
-//   }
-// };
 const searchGig = catchAsync(async (req, res) => {
   const { keyword, category, minPrice, maxPrice, page = 1 } = req.query;
 
   const query = {
     status: "approved",
-    isDeleted: false, // 👈 lọc gig chưa bị xoá mềm
+    isDeleted: false,
   };
 
   if (keyword && typeof keyword === "string" && keyword.trim() !== "") {
@@ -243,6 +210,7 @@ const getPopularCategories = catchAsync(async (req, res) => {
 
 module.exports = {
   getAllCategory,
+  getDetailGig,
   searchGig,
   getPopularCategories,
   getAllGig,

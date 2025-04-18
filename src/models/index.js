@@ -12,7 +12,7 @@ const messageModel = require("./message.model");
 const notificationModel = require("./notification.model");
 const orderModel = require("./order.model");
 const paymentModel = require("./payment.model");
-const responeModel = require("./respone.model");
+const responseModel = require("./respone.model");
 const reviewModel = require("./review.model");
 const reviewVoteModel = require("./reviewVote.model");
 const userModel = require("./user.model");
@@ -32,7 +32,7 @@ module.exports = {
   notificationModel,
   orderModel,
   paymentModel,
-  responeModel,
+  responseModel,
   reviewModel,
   reviewVoteModel,
   userModel,

@@ -1,4 +1,10 @@
-const { reviewModel, orderModel, gigModel } = require("../models");
+const {
+  reviewModel,
+  orderModel,
+  gigModel,
+  responseModel,
+  reviewVoteModel,
+} = require("../models");
 const { CustomException, catchAsync } = require("../utils");
 
 const filteredReview = (reviewObj) => {
@@ -64,11 +70,60 @@ const getAllReview = catchAsync(async (req, res) => {
     .populate("customerId", "name email")
     .select("gigId customerId star description priceRange duration createAt")
     .lean();
+  const reviewIds = reviews.map((review) => review._id);
+  const responses = await responseModel
+    .find({ reviewId: { $in: reviewIds } })
+    .populate("freelancerId", "name")
+    .lean();
+  const votes = await reviewVoteModel
+    .find({ reviewId: { $in: reviewIds } })
+    .lean();
 
+  const reviewsWithDetails = reviews.map((review) => {
+    const reviewResponse = responses.find(
+      (res) => res.reviewId.toString() === review._id.toString()
+    );
+    const reviewVotes = votes.filter(
+      (vote) => vote.reviewId.toString() === review._id.toString()
+    );
+    const helpfulVotes = reviewVotes.filter(
+      (vote) => vote.isHelpFull === "like"
+    ).length;
+    const notHelpfulVotes = reviewVotes.filter(
+      (vote) => vote.isHelpFull === "dislike"
+    ).length;
+
+    return {
+      _id: review._id,
+      gigId: review.gigId,
+      customer: {
+        name: review.customerId?.name || "Unknown",
+        country: review.customerId?.email || null,
+      },
+      star: review.star,
+      description: review.description,
+      priceRange: review.priceRange,
+      duration: review.duration,
+      createdAt: review.createdAt,
+      response: reviewResponse
+        ? {
+            _id: reviewResponse._id,
+            freelancerName: reviewResponse.freelancerId?.name || "Unknown",
+            like: reviewResponse.like,
+            description: reviewResponse.description,
+            createdAt: reviewResponse.createdAt,
+          }
+        : null,
+      votes: {
+        helpful: helpfulVotes,
+        notHelpful: notHelpfulVotes,
+      },
+    };
+  });
   return res.status(200).json({
     error: false,
     message: "get list review successfully",
-    reviews,
+    reviewsWithDetails,
   });
 });
 

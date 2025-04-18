@@ -13,8 +13,9 @@ const reviewVoteSchema = mongoose.Schema(
       require: true,
     },
     isHelpFull: {
-      type: Boolean,
-      default: null,
+      type: String,
+      enum: ["like", "dislike", "none"],
+      default: "none",
     },
   },
   { timestamps: { createdAt: "created_at" } }

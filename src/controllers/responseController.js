@@ -1,9 +1,9 @@
 // controllers/respone.controller.js
-const { reviewModel, responeModel, gigModel } = require("../models");
+const { reviewModel, responseModel, gigModel } = require("../models");
 const { CustomException, catchAsync } = require("../utils");
 
 const createRespone = catchAsync(async (req, res) => {
-  const { idReview } = req.params;
+  const { idReview, description, like } = req.body;
   const freelancerId = req.UserID;
 
   const review = await reviewModel.findById(idReview);
@@ -16,18 +16,18 @@ const createRespone = catchAsync(async (req, res) => {
       403
     );
   }
-  const existed = await responeModel.findOne({ reviewId: idReview });
+  const existed = await responseModel.findOne({ reviewId: idReview });
   console.log(existed);
 
   if (existed) {
     throw new CustomException("You have already responded to this review", 400);
   }
 
-  const respone = await responeModel.create({
+  const respone = await responseModel.create({
     reviewId: idReview,
     freelancerId: req.user._id,
-    description: req.body.description,
-    like: req.body.like || false,
+    description: description,
+    like: like || false,
   });
 
   return res.status(200).json({
