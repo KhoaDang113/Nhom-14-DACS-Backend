@@ -50,6 +50,7 @@ const getDetailGig = catchAsync(async (req, res) => {
     .select("_id freelancerId title description price media ")
     .lean();
   if (!gig) throw new CustomException("Gig not found", 404);
+  await gigModel.updateOne({ _id: gig._id }, { $inc: { views: 1 } });
   const freelancer = await userModel.findOne({ clerkId: gig.freelancerId });
 
   if (!freelancer) throw new CustomException("freelancer not found", 404);

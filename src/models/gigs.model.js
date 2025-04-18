@@ -43,6 +43,8 @@ const gigSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
+    views: { type: Number, default: 0 },
+    ordersCompleted: { type: Number, default: 0 },
     approved_by: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -36,6 +36,12 @@ orderRouter.post(
   validate(responseCancelOrder),
   orderController.responseCancelOrder
 );
+orderRouter.put(
+  "/completed/:idOrder",
+  authUser,
+  roleMiddleware("freelancer"),
+  orderController.completeOrder
+);
 orderRouter.get("/get-list", authUser, orderController.getListOrder);
 
 module.exports = orderRouter;

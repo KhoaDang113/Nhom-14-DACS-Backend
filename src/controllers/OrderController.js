@@ -205,10 +205,44 @@ const responseCancelOrder = catchAsync(async (req, res) => {
     });
   }
 });
+
+const completeOrder = catchAsync(async (req, res) => {
+  const orderId = req.params.idOrder;
+  const order = await orderModel.findById(orderId);
+  if (!order) {
+    throw new CustomException("Order not found", 404);
+  }
+  if (order.freelancerId !== req.UserID) {
+    throw new CustomException(
+      "You are not authorized to respond to this request",
+      403
+    );
+  }
+
+  if (order.status === "completed") {
+    throw new CustomException("Order is already completed", 400);
+  }
+  order.status = "completed";
+  await order.save();
+  await gigModel.updateOne(
+    { _id: order.gigId },
+    { $inc: { ordersCompleted: 1 } }
+  );
+  res.status(200).json({
+    success: true,
+    message: "Order completed successfully",
+    order: {
+      _id: order._id,
+      gigId: order.gigId,
+      status: order.status,
+    },
+  });
+});
 module.exports = {
   requestCreateOrder,
   responseCreateOrder,
   getListOrder,
   requestCancelOrder,
   responseCancelOrder,
+  completeOrder,
 };

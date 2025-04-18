@@ -22,6 +22,8 @@ const createGig = catchAsync(async (req, res) => {
       duration: gig.duration,
       category_id: gig.category_id,
       status: gig.status,
+      views: gig.views || 0,
+      ordersCompleted: gig.ordersCompleted || 0,
     },
   });
 });
@@ -87,6 +89,7 @@ const updateGig = catchAsync(async (req, res) => {
     .findOneAndUpdate(
       { _id: req.gig._id, isDeleted: false },
       { $set: req.body },
+      { $set: { views: 0, ordersCompleted: 0 } },
       { new: true, runValidators: true }
     )
     .select(

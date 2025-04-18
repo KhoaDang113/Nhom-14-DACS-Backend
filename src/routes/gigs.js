@@ -14,7 +14,7 @@ gigRouter.post(
   "/create",
   authUser,
   roleMiddleware("freelancer"),
-  uploadCloud.array("media", 5),
+  uploadCloud.array("files", 5),
   validate(createGigValidator),
   gigController.createGig
 );
@@ -39,7 +39,7 @@ gigRouter.put(
   authUser,
   roleMiddleware("freelancer"),
   authorizeGigOwner,
-  uploadCloud.array("media", 5),
+  uploadCloud.array("files", 5),
   validate(updateGigValidator),
   gigController.updateGig
 );
