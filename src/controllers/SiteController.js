@@ -47,7 +47,9 @@ const getDetailGig = catchAsync(async (req, res) => {
       status: "approved",
       isDeleted: false,
     })
-    .select("_id freelancerId title description price media ")
+    .select(
+      "_id freelancerId category_id views status ordersCompleted title description price media "
+    )
     .lean();
   if (!gig) throw new CustomException("Gig not found", 404);
   await gigModel.updateOne({ _id: gig._id }, { $inc: { views: 1 } });
