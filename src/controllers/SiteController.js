@@ -63,15 +63,20 @@ const getDetailGig = catchAsync(async (req, res) => {
     packageId: gigPackage ? gigPackage._id : null,
   });
 });
-
 const searchGig = catchAsync(async (req, res) => {
-  const { keyword, category, minPrice, maxPrice, page = 1 } = req.query;
-
+  const {
+    keyword,
+    category,
+    minPrice,
+    maxPrice,
+    page = 1,
+    limit = 10,
+    sortBy = "recommended",
+  } = req.query;
   const query = {
     status: "approved",
     isDeleted: false,
   };
-
   if (keyword && typeof keyword === "string" && keyword.trim() !== "") {
     query.$text = { $search: keyword.trim() };
   }
@@ -82,7 +87,6 @@ const searchGig = catchAsync(async (req, res) => {
     }
     query.category_id = category;
   }
-
   if (minPrice || maxPrice) {
     query.price = {};
     if (Number(minPrice) >= Number(maxPrice)) {
@@ -100,37 +104,49 @@ const searchGig = catchAsync(async (req, res) => {
         maxPrice.toString()
       );
   }
+  let sortCriteria = {};
+  switch (sortBy.toLowerCase()) {
+    case "hot":
+      sortCriteria = { ordersCompleted: -1 };
+      break;
+    case "new":
+      sortCriteria = { createdAt: -1 };
+      break;
+    case "recommended":
+    default:
+      sortCriteria = { views: -1, ordersCompleted: -1 };
+      break;
+  }
 
   let gigsQuery = gigModel
     .find(query)
     .select(
-      "_id title description keywords price media duration status category_id"
+      "_id title description keywords price media duration status category_id freelancerId views ordersCompleted createdAt"
     );
-
   if (query.$text) {
     gigsQuery = gigsQuery
       .select({ score: { $meta: "textScore" } })
-      .sort({ score: { $meta: "textScore" } });
+      .sort({ ...sortCriteria, score: { $meta: "textScore" } });
+  } else {
+    gigsQuery = gigsQuery.sort(sortCriteria);
   }
-
   const gigs = await gigsQuery
-    .skip((page - 1) * 20)
-    .limit(20)
+    .skip((page - 1) * parseInt(limit))
+    .limit(parseInt(limit))
     .lean();
-
   if (!gigs.length) {
     throw new CustomException("No gigs found", 404);
   }
-
+  const formattedGigs = await formatGigs(gigs);
   const total = await gigModel.countDocuments(query);
-  const totalPages = Math.ceil(total / 20);
+  const totalPages = Math.ceil(total / parseInt(limit));
 
   return res.status(200).json({
     error: false,
     message: "Gigs retrieved successfully",
     totalPages,
     totalResults: total,
-    gigs,
+    gigs: formattedGigs,
   });
 });
 
@@ -175,7 +191,6 @@ const getPopularCategories = catchAsync(async (req, res) => {
       categoryCount[categoryId] = (categoryCount[categoryId] || 0) + 1;
     }
   });
-
   const categoryCountArray = Object.entries(categoryCount).map(
     ([categoryId, count]) => ({ categoryId, count })
   );
@@ -211,10 +226,25 @@ const getPopularCategories = catchAsync(async (req, res) => {
   });
 });
 
+const getUserById = catchAsync(async (req, res) => {
+  const userId = req.params.userId;
+  const user = await userModel
+    .findById(userId)
+    .select("name email avatar clerkId role facebookId googleId")
+    .lean();
+  if (!user) throw new CustomException("User not found", 404);
+  return res.status(200).json({
+    error: false,
+    message: "User retrieved successfully",
+    data: user,
+  });
+});
+
 module.exports = {
   getAllCategory,
   getDetailGig,
   searchGig,
   getPopularCategories,
   getAllGig,
+  getUserById,
 };

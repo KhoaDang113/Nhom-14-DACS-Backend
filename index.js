@@ -25,6 +25,7 @@ const complaintRouter = require("./src/routes/complaint");
 const reviewRouter = require("./src/routes/review");
 const reviewVoteRouter = require("./src/routes/reviewVote");
 const responseRouter = require("./src/routes/response");
+const userRouter = require("./src/routes/user");
 
 //Import routes of admin
 const gigAdminRouter = require("./src/routes/Admin/gigAdmin");
@@ -57,8 +58,8 @@ app.use(express.json());
 
 connectDB();
 
-//Routes of customer and freelancer
 app.use("/api/webhooks", webhookRouter);
+//Routes of customer and freelancer
 app.use("/api/gigs", gigRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/order", orderRouter);
@@ -69,6 +70,7 @@ app.use("/api/complaint", complaintRouter);
 app.use("/api/review", reviewRouter);
 app.use("/api/review-vote", reviewVoteRouter);
 app.use("/api/response", responseRouter);
+app.use("/api/user", userRouter);
 
 //Routes of admin
 app.use("/api/admin/gigs", gigAdminRouter);

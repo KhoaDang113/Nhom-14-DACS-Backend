@@ -40,9 +40,15 @@ const isFavorite = catchAsync(async (req, res) => {
 const getListFavorite = catchAsync(async (req, res) => {
   const favorites = await favoriteModel
     .find({ customerId: req.user._id })
-    .populate("gigId", "_id freelancerId title")
+    .populate({
+      path: "gigId",
+      select: "_id freelancerId title description price media categoryId",
+      populate: {
+        path: "freelancerId",
+        select: "name avatar",
+      },
+    })
     .select("_id gigId customerId");
-
   return res.status(200).json({
     error: false,
     message: "Favorites retrieved successfully",

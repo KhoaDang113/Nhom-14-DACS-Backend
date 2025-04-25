@@ -87,26 +87,62 @@ const responseCreateOrder = catchAsync(async (req, res) => {
 });
 
 const getListOrderForFreelancer = catchAsync(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
+  const totalOrders = await orderModel.countDocuments({
+    freelancerId: req.UserID,
+  });
+  const totalPages = Math.ceil(totalOrders / limit);
+
   const orders = await orderModel
     .find({ freelancerId: req.UserID })
     .populate("gigId", "price")
     .populate("customerId", "name")
-    .select("_id title price status createdAt");
+    .select("_id title price status createdAt")
+    .skip(skip)
+    .limit(limit);
+
   return res.status(200).json({
     error: false,
     message: "Get list order successfully",
     orders,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalOrders,
+      ordersPerPage: limit,
+    },
   });
 });
 
 const getListOrder = catchAsync(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
+  const totalOrders = await orderModel.countDocuments({
+    customerId: req.user._id,
+  });
+  const totalPages = Math.ceil(totalOrders / limit);
+
   const orders = await orderModel
     .find({ customerId: req.user._id })
-    .select("_id title price status createdAt");
+    .select("_id title price status createdAt")
+    .skip(skip)
+    .limit(limit);
+
   return res.status(200).json({
     error: false,
     message: "Get list order successfully",
     orders,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalOrders,
+      ordersPerPage: limit,
+    },
   });
 });
 
