@@ -55,4 +55,52 @@ const getFreelancerProfile = catchAsync(async (req, res) => {
     data: freelancerProfiles,
   });
 });
-module.exports = { createFreelancerProfile, getFreelancerProfile };
+
+const updateFreelancerProfile = catchAsync(async (req, res) => {
+  const {
+    fullName,
+    industry,
+    hardSkill,
+    softSkill,
+    languages,
+    country,
+    education,
+    description,
+    certificates,
+  } = req.body;
+  const freelancerProfile = await freelancerProfileModel
+    .findOneAndUpdate(
+      { freelancerId: req.user._id },
+      {
+        fullName,
+        industry,
+        hardSkill,
+        softSkill,
+        languages,
+        country,
+        education,
+        description,
+        certificates,
+      },
+      { new: true }
+    )
+    .select(
+      "fullName industry hardSkill softSkill languages country education description certificates"
+    )
+    .lean();
+
+  if (!freelancerProfile) {
+    throw new CustomException("profile is not found", 404);
+  }
+
+  return res.status(200).json({
+    error: false,
+    message: "Profile updated successfully",
+    data: freelancerProfile,
+  });
+});
+module.exports = {
+  createFreelancerProfile,
+  getFreelancerProfile,
+  updateFreelancerProfile,
+};

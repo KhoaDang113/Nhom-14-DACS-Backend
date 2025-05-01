@@ -64,29 +64,29 @@ const updateGigValidator = [
     .isInt({ min: 1 })
     .withMessage("Duration must be at least 1 day"),
 
-  body("media")
-    .notEmpty()
-    .custom((value) => {
-      try {
-        const parsed = JSON.parse(value);
-        if (!Array.isArray(parsed) || parsed.length === 0) {
-          throw new Error("Media must be a non-empty array");
-        }
-        for (let item of parsed) {
-          if (
-            !item.type ||
-            !["image", "video"].includes(item.type) ||
-            !item.url ||
-            typeof item.url !== "string"
-          ) {
-            throw new Error("Each media item must have a valid type and url");
-          }
-        }
-        return true;
-      } catch (err) {
-        throw new Error("Media must be a valid JSON array with type and url");
-      }
-    }),
+  // body("media")
+  //   .notEmpty()
+  //   .custom((value) => {
+  //     try {
+  //       const parsed = JSON.parse(value);
+  //       if (!Array.isArray(parsed) || parsed.length === 0) {
+  //         throw new Error("Media must be a non-empty array");
+  //       }
+  //       for (let item of parsed) {
+  //         if (
+  //           !item.type ||
+  //           !["image", "video"].includes(item.type) ||
+  //           !item.url ||
+  //           typeof item.url !== "string"
+  //         ) {
+  //           throw new Error("Each media item must have a valid type and url");
+  //         }
+  //       }
+  //       return true;
+  //     } catch (err) {
+  //       throw new Error("Media must be a valid JSON array with type and url");
+  //     }
+  //   }),
   body("status").not().exists().withMessage("You cannot set status manually"),
 ];
 

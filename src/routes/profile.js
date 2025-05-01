@@ -3,7 +3,10 @@ const profileController = require("../controllers/ProfileController");
 const authUser = require("../middlewares/authUser");
 const { roleMiddleware } = require("../middlewares/roleMiddleware");
 const validate = require("../middlewares/validateMiddleware");
-const { createFreelancerProfile } = require("../validator/profileValidation");
+const {
+  createFreelancerProfile,
+  updateFreelancerProfile,
+} = require("../validator/profileValidation");
 profileRouter.post(
   "/create",
   authUser,
@@ -16,6 +19,13 @@ profileRouter.get(
   authUser,
   roleMiddleware("freelancer"),
   profileController.getFreelancerProfile
+);
+profileRouter.put(
+  "/update",
+  authUser,
+  roleMiddleware("freelancer"),
+  validate(updateFreelancerProfile),
+  profileController.updateFreelancerProfile
 );
 
 module.exports = profileRouter;

@@ -45,7 +45,7 @@ const getSingleGig = catchAsync(async (req, res) => {
   const gig = await gigModel
     .findById(req.params.id)
     .select(
-      "_id title description category_id price media views ordersCompleted"
+      "_id title description category_id price media views ordersCompleted duration"
     );
   if (!gig) {
     throw new CustomException("Gig not found!", 404);
@@ -100,8 +100,7 @@ const updateGig = catchAsync(async (req, res) => {
   const updatedGig = await gigModel
     .findOneAndUpdate(
       { _id: req.gig._id, isDeleted: false },
-      { $set: req.body },
-      { $set: { views: 0, ordersCompleted: 0 } },
+      { $set: { ...req.body, views: 0, ordersCompleted: 0 } },
       { new: true, runValidators: true }
     )
     .select(
