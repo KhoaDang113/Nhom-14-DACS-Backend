@@ -13,9 +13,8 @@ messageRouter.post(
   messageController.createMessage
 );
 messageRouter.get(
-  "/get-all",
+  "/:conversationId/get-all",
   authUser,
-  validator(getAllMessageValidator),
   messageController.getAllMessage
 );
 

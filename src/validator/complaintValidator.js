@@ -16,7 +16,7 @@ const createComplaint = [
   body("description")
     .trim()
     .optional({ checkFalsy: true })
-    .isLength({ min: 255 })
-    .withMessage("Description must be at least 255 characters long"),
+    .isLength({ max: 255 })
+    .withMessage("Description must less 255 characters long"),
 ];
 module.exports = { createComplaint };

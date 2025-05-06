@@ -88,39 +88,46 @@ const getListGig = catchAsync(async (req, res) => {
 
 const updateGig = catchAsync(async (req, res) => {
   delete req.body.status;
+  let updatedMedia = [];
+  if (req.body.existingImages) {
+    const existingImages = Array.isArray(req.body.existingImages)
+      ? req.body.existingImages
+      : [req.body.existingImages];
+
+    updatedMedia = existingImages.map((url) => ({
+      type: "image",
+      url: url,
+    }));
+  }
   const files = req.files;
   if (files && files.length > 0) {
-    const media = files.map((file) => ({
+    const newMedia = files.map((file) => ({
       type: file.mimetype.includes("video") ? "video" : "image",
       url: file.path,
     }));
-    req.body.media = media;
+    updatedMedia = [...updatedMedia, ...newMedia];
   }
+  if (updatedMedia.length > 0) {
+    req.body.media = updatedMedia;
+  }
+  delete req.body.existingImages;
 
   const updatedGig = await gigModel
     .findOneAndUpdate(
       { _id: req.gig._id, isDeleted: false },
-      { $set: { ...req.body, views: 0, ordersCompleted: 0 } },
+      { $set: req.body },
       { new: true, runValidators: true }
     )
     .select(
       "title description price media duration status category_id updatedAt"
     );
+
   res.status(200).json({
     error: false,
     message: "Gig updated successfully",
     gig: updatedGig,
   });
 });
-
-const getPreviousStatus = (gig) => {
-  if (gig.approved_at && gig.rejected_at) {
-    return gig.approved_at > gig.rejected_at ? "approved" : "rejected";
-  }
-  if (gig.approved_at) return "approved";
-  if (gig.rejected_at) return "rejected";
-  return "pending";
-};
 
 const hideGig = catchAsync(async (req, res) => {
   const gig = req.gig;

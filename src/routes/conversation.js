@@ -12,9 +12,14 @@ conversationRouter.post(
   conversationController.createOrGetConversation
 );
 conversationRouter.get(
-  "/get-coversation",
+  "/get-conversations",
   authUser,
   conversationController.getAllConversation
+);
+conversationRouter.get(
+  "/get-conversation/:conversationId",
+  authUser,
+  conversationController.getConversationById
 );
 
 module.exports = conversationRouter;

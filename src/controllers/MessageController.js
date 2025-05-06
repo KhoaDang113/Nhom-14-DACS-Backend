@@ -28,6 +28,7 @@ const createMessage = catchAsync(async (req, res) => {
   const newMessage = await messageModel.create(messageData);
 
   conversation.lastMessage = content;
+  conversation.lastMessageSender = req.user._id;
   conversation.readBySeller = req.user._id.equals(conversation.freelancerId);
   conversation.readByBuyer = req.user._id.equals(conversation.customerId);
   await conversation.save();
@@ -45,7 +46,7 @@ const createMessage = catchAsync(async (req, res) => {
 });
 
 const getAllMessage = catchAsync(async (req, res) => {
-  const { conversationId } = req.body;
+  const { conversationId } = req.params;
 
   const conversation = await conversationModel.findById(conversationId);
   if (!conversation) {
@@ -65,7 +66,6 @@ const getAllMessage = catchAsync(async (req, res) => {
 
   const messages = await messageModel
     .find({ conversationId })
-    .populate({ path: "userId", select: "fullName" })
     .select("_id conversationId userId content createdAt")
     .sort({ created_at: 1 });
 

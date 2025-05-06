@@ -4,6 +4,7 @@ async function formatGig(gig) {
   return {
     _id: gig._id,
     title: gig.title,
+    description: gig.description,
     price: parseFloat(gig.price),
     media: gig.media,
     duration: gig.duration,

@@ -16,6 +16,11 @@ const conversationSchema = new mongoose.Schema(
       type: String,
       require: false,
     },
+    lastMessageSender: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      required: false,
+    },
   },
   {
     timestamps: true,

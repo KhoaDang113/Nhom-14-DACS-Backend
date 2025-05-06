@@ -13,7 +13,7 @@ const authUser = catchAsync(async (req, res, next) => {
   req.UserID = userId;
   req.user = user;
 
-  next();
+  return next();
 });
 
 module.exports = authUser;

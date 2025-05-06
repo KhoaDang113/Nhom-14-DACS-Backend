@@ -5,10 +5,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const svix = require("svix");
 const app = express();
-const {
-  ClerkExpressRequireAuth,
-  ClerkExpressWithAuth,
-} = require("@clerk/clerk-sdk-node");
+const { ClerkExpressWithAuth } = require("@clerk/clerk-sdk-node");
 const errorHandler = require("./src/middlewares/errorHandler");
 const connectDB = require("./src/config/db");
 
