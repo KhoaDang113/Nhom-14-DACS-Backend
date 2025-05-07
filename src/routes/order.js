@@ -1,5 +1,5 @@
 const orderRouter = require("express").Router();
-const orderController = require("../controllers/OrderController");
+const orderController = require("../controllers/orderController");
 const authUser = require("../middlewares/authUser");
 const validate = require("../middlewares/validateMiddleware");
 const { roleMiddleware } = require("../middlewares/roleMiddleware");
@@ -36,7 +36,7 @@ orderRouter.post(
   validate(responseCancelOrder),
   orderController.responseCancelOrder
 );
-orderRouter.put(
+orderRouter.post(
   "/completed/:idOrder",
   authUser,
   roleMiddleware("freelancer"),

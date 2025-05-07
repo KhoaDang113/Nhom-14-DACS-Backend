@@ -1,5 +1,5 @@
 const siteRouter = require("express").Router();
-const siteController = require("../controllers/SiteController");
+const siteController = require("../controllers/siteController");
 
 siteRouter.get("/api/category", siteController.getAllCategory);
 siteRouter.get("/api/:idGig/get-gig-detail", siteController.getDetailGig);

@@ -14,18 +14,24 @@ profileRouter.post(
   validate(createFreelancerProfile),
   profileController.createFreelancerProfile
 );
-profileRouter.get(
-  "/get",
-  authUser,
-  roleMiddleware("freelancer"),
-  profileController.getFreelancerProfile
-);
+profileRouter.get("/get", authUser, profileController.getFreelancerProfile);
 profileRouter.put(
   "/update",
   authUser,
   roleMiddleware("freelancer"),
   validate(updateFreelancerProfile),
   profileController.updateFreelancerProfile
+);
+
+// Thêm route mới cho API lấy thông tin người dùng
+profileRouter.get("/user", authUser, profileController.getUserProfile);
+
+// Route để admin hoặc người dùng khác có thể xem thông tin của một người dùng cụ thể
+profileRouter.get(
+  "/user/:userId",
+
+  authUser,
+  profileController.getUserProfile
 );
 
 module.exports = profileRouter;

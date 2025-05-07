@@ -99,8 +99,63 @@ const updateFreelancerProfile = catchAsync(async (req, res) => {
     data: freelancerProfile,
   });
 });
+
+const getUserProfile = catchAsync(async (req, res) => {
+  // Lấy ID người dùng từ request (có thể là ID của chính user hoặc ID truyền vào từ params)
+  const userId = req.params.userId || req.user._id;
+
+  // Lấy thông tin cơ bản của người dùng
+  const user = await userModel
+    .findById(userId)
+    .select("_id name email role createdAt avatar country description")
+    .lean();
+
+  if (!user) {
+    throw new CustomException("Không tìm thấy thông tin người dùng", 404);
+  }
+
+  // Khởi tạo đối tượng response
+  const userResponse = {
+    ...user,
+    hardSkill: "",
+    softSkill: "",
+    languages: "",
+    education: "",
+    certificates: "",
+  };
+
+  // Nếu là freelancer, lấy thêm thông tin chi tiết từ freelancerProfile
+  if (user.role === "freelancer") {
+    const freelancerProfile = await freelancerProfileModel
+      .findOne({ freelancerId: userId })
+      .select(
+        "fullName industry hardSkill softSkill languages country education description certificates"
+      )
+      .lean();
+
+    if (freelancerProfile) {
+      userResponse.hardSkill = freelancerProfile.hardSkill || "";
+      userResponse.softSkill = freelancerProfile.softSkill || "";
+      userResponse.languages = freelancerProfile.languages || "";
+      userResponse.education = freelancerProfile.education || "";
+      userResponse.certificates = freelancerProfile.certificates || "";
+      userResponse.industry = freelancerProfile.industry || "";
+      // Ưu tiên lấy description từ freelancerProfile nếu có
+      userResponse.description =
+        freelancerProfile.description || user.description || "";
+    }
+  }
+
+  return res.status(200).json({
+    error: false,
+    message: "Lấy thông tin người dùng thành công",
+    data: userResponse,
+  });
+});
+
 module.exports = {
   createFreelancerProfile,
   getFreelancerProfile,
   updateFreelancerProfile,
+  getUserProfile,
 };

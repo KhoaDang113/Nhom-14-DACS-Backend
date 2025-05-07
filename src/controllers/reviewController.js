@@ -127,4 +127,28 @@ const getAllReview = catchAsync(async (req, res) => {
   });
 });
 
-module.exports = { createReview, getAllReview };
+const ratingStart = catchAsync(async (req, res) => {
+  const { idGig } = req.params;
+  const gig = await gigModel.findById(idGig);
+  if (!gig) throw new CustomException("Gig not found", 404);
+  const reviews = await reviewModel
+    .find({ gigId: idGig })
+    .select("gigId star")
+    .lean();
+  const totalStar = reviews.reduce((acc, review) => acc + review.star, 0);
+  const averageStar = review.length
+    ? Number(totalStar / reviews.length).toFixed(1)
+    : 0;
+  const rating = {
+    totalStar: totalStar,
+    averageStar: averageStar,
+    totalReview: reviews.length,
+  };
+  return res.status(200).json({
+    error: false,
+    message: "get rating successfully",
+    rating,
+  });
+});
+
+module.exports = { createReview, getAllReview, ratingStart };

@@ -11,5 +11,6 @@ reviewRouter.post(
   reviewController.createReview
 );
 reviewRouter.get("/:idGig/get", reviewController.getAllReview);
+reviewRouter.get("/:idGig/get-review-start", reviewController.ratingStart);
 
 module.exports = reviewRouter;

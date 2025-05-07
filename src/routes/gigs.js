@@ -1,5 +1,5 @@
 const gigRouter = require("express").Router();
-const gigController = require("../controllers/GigController");
+const gigController = require("../controllers/gigController");
 const uploadCloud = require("../config/cloudinary");
 const authUser = require("../middlewares/authUser");
 const authorizeGigOwner = require("../middlewares/authorizeGigOwner");

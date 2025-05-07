@@ -129,6 +129,15 @@ const updateGig = catchAsync(async (req, res) => {
   });
 });
 
+const getPreviousStatus = (gig) => {
+  if (gig.approved_at && gig.rejected_at) {
+    return gig.approved_at > gig.rejected_at ? "approved" : "rejected";
+  }
+  if (gig.approved_at) return "approved";
+  if (gig.rejected_at) return "rejected";
+  return "pending";
+};
+
 const hideGig = catchAsync(async (req, res) => {
   const gig = req.gig;
 

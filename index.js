@@ -3,11 +3,14 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const morgan = require("morgan");
+const { Server } = require("socket.io");
+const http = require("http");
 const svix = require("svix");
 const app = express();
 const { ClerkExpressWithAuth } = require("@clerk/clerk-sdk-node");
 const errorHandler = require("./src/middlewares/errorHandler");
 const connectDB = require("./src/config/db");
+const initializeSocket = require("./src/socket/socket");
 
 //Import routes
 const webhookRouter = require("./src/routes/webhook");
@@ -55,6 +58,15 @@ app.use(express.json());
 
 connectDB();
 
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+initializeSocket(io);
 app.use("/api/webhooks", webhookRouter);
 //Routes of customer and freelancer
 app.use("/api/gigs", gigRouter);
@@ -62,7 +74,7 @@ app.use("/api/profile", profileRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/favorite", favoriteRouter);
 app.use("/api/conversation", conversationRouter);
-app.use("/api/message", messageRouter);
+app.use("/api/message", messageRouter(io));
 app.use("/api/complaint", complaintRouter);
 app.use("/api/review", reviewRouter);
 app.use("/api/review-vote", reviewVoteRouter);
@@ -81,6 +93,6 @@ app.use("/", sitRouter);
 app.use(errorHandler);
 
 const port = 5000;
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server listen in port ${port}`);
 });

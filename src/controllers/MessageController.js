@@ -1,8 +1,9 @@
 const { messageModel, conversationModel } = require("../models");
 const { CustomException, catchAsync } = require("../utils");
+
 const createMessage = catchAsync(async (req, res) => {
   const { conversationId, content } = req.body;
-
+  const io = req.io;
   const conversation = await conversationModel.findById(conversationId);
   if (!conversation) {
     throw new CustomException("Conversation does not exist", 404);
@@ -22,16 +23,30 @@ const createMessage = catchAsync(async (req, res) => {
   const messageData = {
     conversationId,
     userId: req.user._id,
-    content,
   };
+  if (content) {
+    messageData.content = content;
+  }
 
+  if (req.file) {
+    messageData.attachment = req.file.path;
+  }
   const newMessage = await messageModel.create(messageData);
 
-  conversation.lastMessage = content;
+  conversation.lastMessage = content || "📷 ảnh";
   conversation.lastMessageSender = req.user._id;
   conversation.readBySeller = req.user._id.equals(conversation.freelancerId);
   conversation.readByBuyer = req.user._id.equals(conversation.customerId);
   await conversation.save();
+  // Broadcast message to conversation room via Socket.IO
+  io.to(conversationId).emit("receive_message", {
+    _id: newMessage._id,
+    conversationId,
+    userId: newMessage.userId,
+    content: newMessage.content,
+    attachment: newMessage.attachment,
+    createdAt: newMessage.createdAt,
+  });
 
   return res.status(201).json({
     error: false,
@@ -40,6 +55,7 @@ const createMessage = catchAsync(async (req, res) => {
       _id: newMessage._id,
       userId: newMessage.userId,
       content: newMessage.content,
+      attachment: newMessage.attachment,
       createdAt: newMessage.createdAt,
     },
   });
@@ -66,7 +82,7 @@ const getAllMessage = catchAsync(async (req, res) => {
 
   const messages = await messageModel
     .find({ conversationId })
-    .select("_id conversationId userId content createdAt")
+    .select("_id conversationId userId content attachment createdAt")
     .sort({ created_at: 1 });
 
   if (req.user._id.equals(conversation.customerId)) {

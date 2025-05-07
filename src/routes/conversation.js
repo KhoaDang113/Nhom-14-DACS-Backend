@@ -1,4 +1,4 @@
-const conversationController = require("../controllers/ConversationController");
+const conversationController = require("../controllers/conversationController");
 const conversationRouter = require("express").Router();
 const authUser = require("../middlewares/authUser");
 const {
