@@ -48,5 +48,6 @@ orderRouter.get(
   orderController.getListOrderForFreelancer
 );
 orderRouter.get("/get-list", authUser, orderController.getListOrder);
+orderRouter.get("/:orderId", authUser, orderController.getOrderById);
 
 module.exports = orderRouter;

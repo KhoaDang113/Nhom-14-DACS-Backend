@@ -12,6 +12,10 @@ const reviewSchema = new mongoose.Schema(
       ref: "User",
       require: true,
     },
+    title: {
+      type: String,
+      default: "",
+    },
     star: {
       type: Number,
       require: true,
@@ -28,6 +32,11 @@ const reviewSchema = new mongoose.Schema(
     duration: {
       type: String,
       require: true,
+    },
+    orderId: {
+      type: mongoose.Types.ObjectId,
+      ref: "Order",
+      default: null,
     },
   },
   {

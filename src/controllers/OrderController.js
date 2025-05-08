@@ -3,6 +3,7 @@ const {
   orderModel,
   userModel,
   cancelRequestModel,
+  reviewModel, // Thêm import reviewModel
 } = require("../models");
 const { CustomException, catchAsync } = require("../utils");
 
@@ -287,6 +288,116 @@ const completeOrder = catchAsync(async (req, res) => {
     },
   });
 });
+
+// add
+const getOrderById = catchAsync(async (req, res) => {
+  const { orderId } = req.params;
+
+  // Find the order with populated references
+  const order = await orderModel
+    .findById(orderId)
+    .populate("gigId", "title price media duration")
+    .populate("customerId", "name email avatar")
+    .lean();
+
+  if (!order) {
+    throw new CustomException("Order not found", 404);
+  }
+
+  // Check if the user is authorized to view this order
+  // Allow both the customer and the freelancer to view the order
+  if (
+    req.user._id.toString() !== order.customerId._id.toString() &&
+    req.UserID !== order.freelancerId
+  ) {
+    throw new CustomException("You are not authorized to view this order", 403);
+  }
+
+  // Get freelancer details
+  const freelancer = await userModel
+    .findOne({ clerkId: order.freelancerId })
+    .select("name avatar")
+    .lean();
+
+  // Enhance order object with freelancer details
+  const enhancedOrder = {
+    ...order,
+    freelancerName: freelancer?.name || "Người bán",
+    freelancerAvatar:
+      freelancer?.avatar || "https://randomuser.me/api/portraits/men/42.jpg",
+  };
+
+  return res.status(200).json({
+    error: false,
+    message: "Order retrieved successfully",
+    order: enhancedOrder,
+  });
+});
+
+const getCustomerOrders = catchAsync(async (req, res) => {
+  const customerId = req.user._id;
+  const pageOptions = {
+    page: parseInt(req.query.page, 10) || 1,
+    limit: parseInt(req.query.limit, 10) || 10,
+  };
+
+  try {
+    const skip = (pageOptions.page - 1) * pageOptions.limit;
+
+    // Lấy danh sách đơn hàng
+    const query = { customerId };
+
+    const [orders, totalOrders] = await Promise.all([
+      orderModel
+        .find(query)
+        .populate("gigId", "title price")
+        .populate("freelancerId", "name avatar")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(pageOptions.limit)
+        .lean(),
+      orderModel.countDocuments(query),
+    ]);
+
+    // Lấy thông tin review cho mỗi đơn hàng
+    const orderIds = orders.map((order) => order._id);
+    const reviews = await reviewModel
+      .find({
+        orderId: { $in: orderIds },
+      })
+      .select("_id orderId gigId")
+      .lean();
+
+    // Map thông tin reviews vào orders
+    const ordersWithReviewInfo = orders.map((order) => {
+      const review = reviews.find(
+        (r) => r.orderId && r.orderId.toString() === order._id.toString()
+      );
+
+      return {
+        ...order,
+        isReviewed: !!review,
+        reviewId: review ? review._id : null,
+      };
+    });
+
+    res.status(200).json({
+      error: false,
+      message: "Lấy danh sách đơn hàng thành công",
+      orders: ordersWithReviewInfo,
+      pagination: {
+        currentPage: pageOptions.page,
+        totalPages: Math.ceil(totalOrders / pageOptions.limit),
+        totalOrders: totalOrders,
+        ordersPerPage: pageOptions.limit,
+      },
+    });
+  } catch (error) {
+    throw error;
+  }
+});
+
+//add
 module.exports = {
   requestCreateOrder,
   responseCreateOrder,
@@ -295,4 +406,6 @@ module.exports = {
   requestCancelOrder,
   responseCancelOrder,
   completeOrder,
+  getOrderById,
+  getCustomerOrders,
 };
