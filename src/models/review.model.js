@@ -38,6 +38,10 @@ const reviewSchema = new mongoose.Schema(
       ref: "Order",
       default: null,
     },
+    isResponse: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

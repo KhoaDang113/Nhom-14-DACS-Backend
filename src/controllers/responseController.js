@@ -17,8 +17,6 @@ const createRespone = catchAsync(async (req, res) => {
     );
   }
   const existed = await responseModel.findOne({ reviewId: idReview });
-  console.log(existed);
-
   if (existed) {
     throw new CustomException("You have already responded to this review", 400);
   }
@@ -30,6 +28,8 @@ const createRespone = catchAsync(async (req, res) => {
     like: like || false,
   });
 
+  review.isResponse = true;
+  await review.save();
   return res.status(200).json({
     error: false,
     message: "Response submitted successfully",
@@ -43,4 +43,21 @@ const createRespone = catchAsync(async (req, res) => {
   });
 });
 
-module.exports = { createRespone };
+const getRespone = catchAsync(async (req, res) => {
+  const { idReview } = req.body;
+  const respone = await responseModel.findById(idReview);
+  if (!respone) throw new CustomException("Response not found", 404);
+  return res.status(200).json({
+    error: false,
+    message: "Get response successfully",
+    respone: {
+      id: respone._id,
+      reviewId: idReview,
+      description: respone.description,
+      freelancerId: respone.freelancerId,
+      like: respone.like,
+      createdAt: respone.createdAt,
+    },
+  });
+});
+module.exports = { createRespone, getRespone };

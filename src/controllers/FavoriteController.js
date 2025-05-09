@@ -56,15 +56,16 @@ const getListFavorite = catchAsync(async (req, res) => {
       });
       return {
         _id: favorite.gigId._id,
-
         title: favorite.gigId.title,
         description: favorite.gigId.description,
         price: favorite.gigId.price,
         media: favorite.gigId.media,
         categoryId: favorite.gigId.categoryId,
-        freelancerId: favorite.gigId.freelancerId,
-        freelancerName: user?.name,
-        freelancerAvatar: user?.avatar,
+        freelancer: {
+          _id: favorite.gigId.freelancerId,
+          name: user?.name,
+          avatar: user?.avatar,
+        },
       };
     })
   );

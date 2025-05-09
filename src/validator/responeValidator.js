@@ -29,4 +29,20 @@ const createRespone = [
     .withMessage("Like must be a boolean value"),
 ];
 
-module.exports = { createRespone };
+const getRespone = [
+  param("idReview")
+    .notEmpty()
+    .withMessage("idReview is required")
+    .custom(async (value) => {
+      if (!mongoose.Types.ObjectId.isValid(value)) {
+        throw new Error("Invalid idReview ID");
+      }
+      const reviewExists = await reviewModel.findById(value);
+      if (!reviewExists) {
+        throw new Error("idReview does not exist");
+      }
+      return true;
+    }),
+];
+
+module.exports = { createRespone, getRespone };

@@ -26,6 +26,7 @@ const reviewRouter = require("./src/routes/review");
 const reviewVoteRouter = require("./src/routes/reviewVote");
 const responseRouter = require("./src/routes/response");
 const userRouter = require("./src/routes/user");
+const paymentRouter = require("./src/routes/payment");
 
 //Import routes of admin
 const gigAdminRouter = require("./src/routes/Admin/gigAdmin");
@@ -80,6 +81,7 @@ app.use("/api/review", reviewRouter);
 app.use("/api/review-vote", reviewVoteRouter);
 app.use("/api/response", responseRouter);
 app.use("/api/user", userRouter);
+app.use("/api/payment", paymentRouter);
 
 //Routes of admin
 app.use("/api/admin/gigs", gigAdminRouter);
