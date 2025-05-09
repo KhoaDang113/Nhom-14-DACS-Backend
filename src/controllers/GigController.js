@@ -29,8 +29,6 @@ const createGig = catchAsync(async (req, res) => {
 });
 
 const deleteGig = catchAsync(async (req, res) => {
-  console.log("gig:", req.gig);
-
   if (req.gig.isDeleted) {
     throw new CustomException("Gig already deleted", 400);
   }

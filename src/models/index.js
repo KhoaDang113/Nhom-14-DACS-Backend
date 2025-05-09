@@ -16,6 +16,7 @@ const responseModel = require("./respone.model");
 const reviewModel = require("./review.model");
 const reviewVoteModel = require("./reviewVote.model");
 const userModel = require("./user.model");
+const transactionModel = require("./transaction.model");
 
 module.exports = {
   adminModel,
@@ -36,4 +37,5 @@ module.exports = {
   reviewModel,
   reviewVoteModel,
   userModel,
+  transactionModel,
 };

@@ -29,7 +29,7 @@ const orderSchema = new mongoose.Schema(
     ],
     requirements: {
       type: String,
-      required: true, // Bắt buộc customer phải gửi yêu cầu
+      // required: true, // Bắt buộc customer phải gửi yêu cầu
     },
     status: {
       type: String,
@@ -39,6 +39,10 @@ const orderSchema = new mongoose.Schema(
     cancelRequestId: {
       type: mongoose.Types.ObjectId,
       ref: "CancelRequest",
+    },
+    price: {
+      type: mongoose.Types.Decimal128,
+      require: true,
     },
   },
   {

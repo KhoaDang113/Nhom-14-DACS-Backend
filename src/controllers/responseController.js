@@ -44,7 +44,7 @@ const createRespone = catchAsync(async (req, res) => {
 });
 
 const getRespone = catchAsync(async (req, res) => {
-  const { idReview } = req.body;
+  const { idReview } = req.params;
   const respone = await responseModel.findById(idReview);
   if (!respone) throw new CustomException("Response not found", 404);
   return res.status(200).json({

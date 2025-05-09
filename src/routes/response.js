@@ -12,7 +12,7 @@ responseRouter.post(
 );
 
 responseRouter.get(
-  "/get",
+  "/get/:idReview",
   authUser,
   validate(getRespone),
   responseController.getRespone

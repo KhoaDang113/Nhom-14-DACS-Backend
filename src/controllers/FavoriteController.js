@@ -69,8 +69,6 @@ const getListFavorite = catchAsync(async (req, res) => {
       };
     })
   );
-  console.log(favorites);
-
   return res.status(200).json({
     error: false,
     message: "Favorites retrieved successfully",
