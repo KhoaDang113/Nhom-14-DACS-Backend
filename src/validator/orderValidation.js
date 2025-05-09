@@ -8,7 +8,7 @@ const responseCreateOrder = [
   body("response")
     .notEmpty()
     .withMessage("response is required")
-    .isIn(["accept", "reject"])
+    .isIn(["approve", "reject"])
     .withMessage("response must be either 'accept' or 'reject'"),
 ];
 

@@ -20,10 +20,13 @@ const orderSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
-    media: {
-      type: [String],
-      require: true,
-    },
+    media: [
+      {
+        type: { type: String },
+        url: String,
+        _id: mongoose.Schema.Types.ObjectId,
+      },
+    ],
     requirements: {
       type: String,
       required: true, // Bắt buộc customer phải gửi yêu cầu

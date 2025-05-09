@@ -1,5 +1,5 @@
 const { CustomException } = require("../utils");
-const { gigModel, favoriteModel } = require("../models");
+const { gigModel, favoriteModel, userModel } = require("../models");
 const catchAsync = require("../utils/CatchAsync");
 
 const isFavorite = catchAsync(async (req, res) => {
@@ -38,7 +38,7 @@ const isFavorite = catchAsync(async (req, res) => {
 });
 
 const getListFavorite = catchAsync(async (req, res) => {
-  const favorites = await favoriteModel
+  const favoriteList = await favoriteModel
     .find({ customerId: req.user._id })
     .populate({
       path: "gigId",
@@ -49,6 +49,27 @@ const getListFavorite = catchAsync(async (req, res) => {
       },
     })
     .select("_id gigId customerId");
+  const favorites = await Promise.all(
+    favoriteList.map(async (favorite) => {
+      const user = await userModel.findOne({
+        clerkId: favorite.gigId.freelancerId,
+      });
+      return {
+        _id: favorite.gigId._id,
+
+        title: favorite.gigId.title,
+        description: favorite.gigId.description,
+        price: favorite.gigId.price,
+        media: favorite.gigId.media,
+        categoryId: favorite.gigId.categoryId,
+        freelancerId: favorite.gigId.freelancerId,
+        freelancerName: user?.name,
+        freelancerAvatar: user?.avatar,
+      };
+    })
+  );
+  console.log(favorites);
+
   return res.status(200).json({
     error: false,
     message: "Favorites retrieved successfully",
