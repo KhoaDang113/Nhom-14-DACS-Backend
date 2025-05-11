@@ -48,7 +48,7 @@ const getDetailGig = catchAsync(async (req, res) => {
       isDeleted: false,
     })
     .select(
-      "_id freelancerId category_id views status ordersCompleted title description price media "
+      "_id freelancerId category_id views status ordersCompleted title description price media duration"
     )
     .lean();
   if (!gig) throw new CustomException("Gig not found", 404);

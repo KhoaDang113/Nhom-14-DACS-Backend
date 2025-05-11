@@ -1,5 +1,10 @@
 // controllers/respone.controller.js
-const { reviewModel, responseModel, gigModel } = require("../models");
+const {
+  reviewModel,
+  responseModel,
+  gigModel,
+  userModel,
+} = require("../models");
 const { CustomException, catchAsync } = require("../utils");
 
 const createRespone = catchAsync(async (req, res) => {
@@ -45,8 +50,9 @@ const createRespone = catchAsync(async (req, res) => {
 
 const getRespone = catchAsync(async (req, res) => {
   const { idReview } = req.params;
-  const respone = await responseModel.findById(idReview);
+  const respone = await responseModel.findOne({ reviewId: idReview });
   if (!respone) throw new CustomException("Response not found", 404);
+  const freelancer = await userModel.findById(respone.freelancerId);
   return res.status(200).json({
     error: false,
     message: "Get response successfully",
@@ -54,7 +60,11 @@ const getRespone = catchAsync(async (req, res) => {
       id: respone._id,
       reviewId: idReview,
       description: respone.description,
-      freelancerId: respone.freelancerId,
+      freelancer: {
+        id: respone.freelancerId,
+        name: freelancer.name,
+        avatar: freelancer.avatar,
+      },
       like: respone.like,
       createdAt: respone.createdAt,
     },

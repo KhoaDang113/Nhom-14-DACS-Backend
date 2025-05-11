@@ -316,6 +316,7 @@ const getGigReviewsForFrontend = catchAsync(async (req, res) => {
     date: review.createdAt,
     priceRange: review.priceRange ? review.priceRange.toString() : "",
     duration: review.duration || 0,
+    isResponse: review.isResponse,
   }));
 
   // Calculate average rating

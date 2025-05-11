@@ -49,4 +49,21 @@ const createIsHelpFull = catchAsync(async (req, res) => {
   });
 });
 
-module.exports = { createIsHelpFull };
+const getVote = catchAsync(async (req, res) => {
+  const { idReview } = req.params;
+  const review = await reviewModel.findById(idReview);
+  if (!review) {
+    throw new CustomException("Review not found", 404);
+  }
+  const votes = await reviewVoteModel
+    .find({ reviewId: idReview, userId: req.user._id })
+    .select("_id isHelpFull");
+
+  return res.status(200).json({
+    success: true,
+    message: "Vote retrieved successfully",
+    votes,
+  });
+});
+
+module.exports = { createIsHelpFull, getVote };

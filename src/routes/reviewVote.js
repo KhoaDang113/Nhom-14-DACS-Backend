@@ -10,5 +10,6 @@ reviewVoteRouter.post(
   validate(createReviewVote),
   reviewVoteController.createIsHelpFull
 );
+reviewVoteRouter.get("/get/:idReview", authUser, reviewVoteController.getVote);
 
 module.exports = reviewVoteRouter;
