@@ -8,9 +8,9 @@ const {
 const { CustomException, catchAsync } = require("../utils");
 
 const createRespone = catchAsync(async (req, res) => {
+  const io = req.io;
   const { idReview, description, like } = req.body;
   const freelancerId = req.UserID;
-
   const review = await reviewModel.findById(idReview);
   if (!review) throw new CustomException("Review not found", 404);
 
@@ -25,14 +25,26 @@ const createRespone = catchAsync(async (req, res) => {
   if (existed) {
     throw new CustomException("You have already responded to this review", 400);
   }
-
+  const freelancer = await userModel.findOne({ clerkId: freelancerId });
   const respone = await responseModel.create({
     reviewId: idReview,
     freelancerId: req.user._id,
     description: description,
     like: like || false,
   });
-
+  io.emit("new_response", {
+    reviewId: idReview,
+    response: {
+      id: respone._id,
+      reviewId: idReview,
+      description: respone.description,
+      freelancer: {
+        id: freelancer._id,
+        name: freelancer.name,
+        avatar: freelancer.avatar,
+      },
+    },
+  });
   review.isResponse = true;
   await review.save();
   return res.status(200).json({

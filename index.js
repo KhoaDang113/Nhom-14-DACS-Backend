@@ -79,7 +79,7 @@ app.use("/api/message", messageRouter(io));
 app.use("/api/complaint", complaintRouter);
 app.use("/api/review", reviewRouter);
 app.use("/api/review-vote", reviewVoteRouter);
-app.use("/api/response", responseRouter);
+app.use("/api/response", responseRouter(io));
 app.use("/api/user", userRouter);
 app.use("/api/payment", paymentRouter);
 

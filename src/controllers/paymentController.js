@@ -111,7 +111,33 @@ const getCheckPayment = catchAsync(async (req, res, next) => {
   }
 });
 
+const getPaymentList = catchAsync(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const [transactions, total] = await Promise.all([
+    transactionModel
+      .find({ userId: req.user._id })
+      .populate("gigId", "title media")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    transactionModel.countDocuments({ userId: req.user._id }),
+  ]);
+
+  return res.status(200).json({
+    error: false,
+    message: "Get payment list successfully",
+    currentPage: page,
+    totalPages: Math.ceil(total / limit),
+    totalItems: total,
+    transactions,
+  });
+});
+
 module.exports = {
   createPayment,
   getCheckPayment,
+  getPaymentList,
 };
