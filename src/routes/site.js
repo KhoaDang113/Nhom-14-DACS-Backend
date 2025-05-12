@@ -7,5 +7,9 @@ siteRouter.get("/api/search", siteController.searchGig);
 siteRouter.get("/api/popular-categories", siteController.getPopularCategories);
 siteRouter.get("/api/gigs", siteController.getAllGig);
 siteRouter.get("/api/user/:userId", siteController.getUserById);
+siteRouter.get(
+  "/api/gigs-category/:categoryId",
+  siteController.getGigsByCategory
+);
 
 module.exports = siteRouter;

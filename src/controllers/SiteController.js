@@ -240,6 +240,29 @@ const getUserById = catchAsync(async (req, res) => {
   });
 });
 
+const getGigsByCategory = catchAsync(async (req, res) => {
+  const { categoryId } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+    throw new CustomException("Invalid categoryId format", 400);
+  }
+  const gigs = await gigModel
+    .find({ category_id: categoryId, status: "approved", isDeleted: false })
+    .select(
+      "_id title description keywords price media duration status category_id freelancerId views ordersCompleted createdAt"
+    )
+    .lean();
+  if (!gigs || gigs.length === 0) {
+    throw new CustomException("No gigs found in this category", 404);
+  }
+  const formattedGigs = await formatGigs(gigs);
+
+  return res.status(200).json({
+    error: false,
+    message: "Gigs retrieved successfully",
+    gigs: formattedGigs,
+  });
+});
+
 module.exports = {
   getAllCategory,
   getDetailGig,
@@ -247,4 +270,5 @@ module.exports = {
   getPopularCategories,
   getAllGig,
   getUserById,
+  getGigsByCategory,
 };
