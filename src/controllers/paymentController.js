@@ -136,8 +136,60 @@ const getPaymentList = catchAsync(async (req, res) => {
   });
 });
 
+const getAllPayments = catchAsync(async (req, res) => {
+  // Kiểm tra xem người dùng có phải là admin không
+  if (req.user.role !== "admin") {
+    return res.status(403).json({
+      error: true,
+      message: "Unauthorized. Only admin can access all payments",
+    });
+  }
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  // Bỏ lọc theo status ở backend, chuyển sang lọc ở frontend
+  const [transactions, total] = await Promise.all([
+    transactionModel
+      .find()
+      .populate("gigId", "title media")
+      .populate("userId", "name email")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    transactionModel.countDocuments(),
+  ]);
+
+  // Map transaction status từ lowercase sang Title Case
+  const formattedTransactions = transactions.map((transaction) => {
+    const transactionObj = transaction.toObject();
+
+    // Map từ status DB sang status response
+    if (transactionObj.status === "completed")
+      transactionObj.status = "Completed";
+    if (transactionObj.status === "pending") transactionObj.status = "Pending";
+    if (transactionObj.status === "failed") transactionObj.status = "Failed";
+
+    // Đổi tên trường để phù hợp với frontend
+    transactionObj.user = transactionObj.userId;
+
+    return transactionObj;
+  });
+
+  return res.status(200).json({
+    error: false,
+    message: "Get all payments successfully",
+    currentPage: page,
+    totalPages: Math.ceil(total / limit),
+    totalItems: total,
+    transactions: formattedTransactions,
+  });
+});
+
 module.exports = {
   createPayment,
   getCheckPayment,
   getPaymentList,
+  getAllPayments,
 };
