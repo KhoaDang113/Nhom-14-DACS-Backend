@@ -1,4 +1,7 @@
 module.exports = (io) => {
+  const time = new Date().toLocaleString("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+  });
   io.on("connection", (socket) => {
     console.log(`User connected: ${socket.id}`);
 
@@ -8,7 +11,7 @@ module.exports = (io) => {
       console.log(`User ${socket.id} joined conversation ${conversationId}`);
     });
     socket.on("new_message", (data) => {
-      io.emit("return_new_message", data);
+      io.emit("return_new_message", { ...data, time: time });
     });
     socket.on("leave_conversation", (conversationId) => {
       socket.leave(conversationId);
