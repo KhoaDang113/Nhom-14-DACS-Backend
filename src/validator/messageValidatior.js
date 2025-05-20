@@ -4,17 +4,27 @@ const createMessageValidator = [
   body("conversationId").notEmpty().withMessage("Conversation ID is required"),
   body("content").optional().isString().withMessage("Content must be a string"),
 
-  body("attachment")
-    .optional()
-    .isString()
-    .withMessage("Attachment must be a string")
-    .isURL()
-    .withMessage("Attachment must be a URL"),
-
   body().custom((_, { req }) => {
     if (!req.body.content && !req.file) {
-      throw new Error("Either content or attachment is required");
+      throw new Error("Either content or attachment (file) is required");
     }
+
+    // Nếu có file thì kiểm tra file hợp lệ (ví dụ file type)
+    if (req.file) {
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "video/mp4",
+      ];
+
+      if (!allowedTypes.includes(req.file.mimetype)) {
+        throw new Error("File type not supported");
+      }
+    }
+
     return true;
   }),
 ];

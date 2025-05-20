@@ -11,6 +11,8 @@ module.exports = (io) => {
       console.log(`User ${socket.id} joined conversation ${conversationId}`);
     });
     socket.on("new_message", (data) => {
+      console.log("new message", data);
+
       io.emit("return_new_message", { ...data, time: time });
     });
     socket.on("leave_conversation", (conversationId) => {

@@ -29,11 +29,17 @@ const createMessage = catchAsync(async (req, res) => {
   }
 
   if (req.file) {
-    messageData.attachment = req.file.path;
+    messageData.attachment = {
+      url: req.file.path,
+      name: req.file.originalname,
+      type: req.file.mimetype,
+      size: req.file.size,
+    };
   }
   const newMessage = await messageModel.create(messageData);
 
-  conversation.lastMessage = content || "📷 ảnh";
+  conversation.lastMessage =
+    content || (req.file.mimetype.includes("image") ? "📷 ảnh" : "📎file");
   conversation.lastMessageSender = req.user._id;
   conversation.readBySeller = req.user._id.equals(conversation.freelancerId);
   conversation.readByBuyer = req.user._id.equals(conversation.customerId);
@@ -44,6 +50,7 @@ const createMessage = catchAsync(async (req, res) => {
     conversationId,
     userId: newMessage.userId,
     content: newMessage.content,
+    lastMessage: conversation.lastMessage,
     attachment: newMessage.attachment,
     createdAt: newMessage.createdAt,
   });

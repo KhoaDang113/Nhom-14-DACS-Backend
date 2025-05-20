@@ -27,6 +27,7 @@ const reviewVoteRouter = require("./src/routes/reviewVote");
 const responseRouter = require("./src/routes/response");
 const userRouter = require("./src/routes/user");
 const paymentRouter = require("./src/routes/payment");
+const notificationRouter = require("./src/routes/notification");
 
 //Import routes of admin
 const gigAdminRouter = require("./src/routes/Admin/gigAdmin");
@@ -34,6 +35,7 @@ const categoryAdminRouter = require("./src/routes/Admin/categoryAdmin");
 const complaintAdminRouter = require("./src/routes/Admin/complaintAdmin");
 const userAdminRouter = require("./src/routes/Admin/userAdmin");
 const dashboardAdminRouter = require("./src/routes/Admin/dashboardAdmin");
+// const notificationRouter = require("./src/routes/notification");
 dotenv.config();
 
 const clerkPublishableKey = process.env.CLERK_PUBLISHABLE_KEY;
@@ -82,6 +84,7 @@ app.use("/api/review-vote", reviewVoteRouter);
 app.use("/api/response", responseRouter(io));
 app.use("/api/user", userRouter);
 app.use("/api/payment", paymentRouter);
+app.use("/api/notifications", notificationRouter);
 
 //Routes of admin
 app.use("/api/admin/gigs", gigAdminRouter);

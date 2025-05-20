@@ -10,7 +10,7 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  allowedFormats: ["jpg", "png"],
+  allowedFormats: ["jpg", "png", "pdf", "mp4", "doc", "docx"],
   params: async (req, file) => {
     return {
       folder: "WebJobViet",
