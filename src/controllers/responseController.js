@@ -28,7 +28,11 @@ const createRespone = catchAsync(async (req, res) => {
   const freelancer = await userModel.findOne({ clerkId: freelancerId });
   const respone = await responseModel.create({
     reviewId: idReview,
-    freelancerId: req.user._id,
+    freelancer: {
+      id: req.user._id,
+      name: req.user.name,
+      avatar: req.user.avatar,
+    },
     description: description,
     like: like || false,
   });
