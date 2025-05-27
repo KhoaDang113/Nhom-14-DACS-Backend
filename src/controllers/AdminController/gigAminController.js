@@ -24,7 +24,7 @@ const getPendingGigs = catchAsync(async (req, res) => {
     .find({ status: "pending", isDeleted: false })
     .lean();
   if (!gigs || gigs.length === 0) {
-    throw new CustomException("No gigs pending found, You are free", 404);
+    throw new CustomException("Không có dịch vụ nào cần phê duyệt", 404);
   }
   const formattedGigs = await formatGigs(gigs);
   return res.status(200).json({
