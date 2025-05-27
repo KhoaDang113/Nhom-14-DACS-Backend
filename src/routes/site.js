@@ -11,5 +11,7 @@ siteRouter.get(
   "/api/gigs-category/:categoryId",
   siteController.getGigsByCategory
 );
+siteRouter.get("/api/list-banner", siteController.getListJobBanner);
+siteRouter.get("/api/list-job-hot", siteController.getListJobHots);
 
 module.exports = siteRouter;

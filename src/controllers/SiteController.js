@@ -4,6 +4,7 @@ const {
   orderModel,
   userModel,
   gigPackageModel,
+  jobBannerModel,
 } = require("../models");
 const mongoose = require("mongoose");
 const CustomException = require("../utils/CustomException");
@@ -263,6 +264,58 @@ const getGigsByCategory = catchAsync(async (req, res) => {
   });
 });
 
+const getListJobBanner = catchAsync(async (req, res) => {
+  const { page = 1 } = req.query;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
+  const jobBanners = await jobBannerModel
+    .find({ isDeleted: false })
+    .select("_id title description image cta ctaLink createdAt updatedAt")
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 });
+
+  const totalJobBanners = await jobBannerModel.countDocuments({
+    isDeleted: false,
+  });
+
+  return res.status(200).json({
+    status: "success",
+    data: {
+      jobBanners,
+      totalPages: Math.ceil(totalJobBanners / limit),
+      currentPage: page,
+    },
+  });
+});
+
+const getListJobHots = catchAsync(async (req, res) => {
+  const { page = 1 } = req.query;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
+  const jobBanners = await gigModel
+    .find({ isDeleted: false, status: "approved", isHot: true })
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 })
+    .lean();
+  const formattedJobBanners = await formatGigs(jobBanners);
+  const totalJobBanners = await jobBannerModel.countDocuments({
+    isDeleted: false,
+  });
+
+  return res.status(200).json({
+    status: "success",
+    data: {
+      formattedJobBanners,
+      totalPages: Math.ceil(totalJobBanners / limit),
+      currentPage: page,
+    },
+  });
+});
+
 module.exports = {
   getAllCategory,
   getDetailGig,
@@ -271,4 +324,6 @@ module.exports = {
   getAllGig,
   getUserById,
   getGigsByCategory,
+  getListJobBanner,
+  getListJobHots,
 };

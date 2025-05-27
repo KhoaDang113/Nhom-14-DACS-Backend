@@ -161,11 +161,9 @@ const getAllPayments = catchAsync(async (req, res) => {
     transactionModel.countDocuments(),
   ]);
 
-  // Map transaction status từ lowercase sang Title Case
   const formattedTransactions = transactions.map((transaction) => {
     const transactionObj = transaction.toObject();
 
-    // Map từ status DB sang status response
     if (transactionObj.status === "completed")
       transactionObj.status = "Completed";
     if (transactionObj.status === "pending") transactionObj.status = "Pending";

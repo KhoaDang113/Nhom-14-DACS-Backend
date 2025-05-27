@@ -35,6 +35,8 @@ const categoryAdminRouter = require("./src/routes/Admin/categoryAdmin");
 const complaintAdminRouter = require("./src/routes/Admin/complaintAdmin");
 const userAdminRouter = require("./src/routes/Admin/userAdmin");
 const dashboardAdminRouter = require("./src/routes/Admin/dashboardAdmin");
+const jobBannerAdminRouter = require("./src/routes/Admin/jobBannerAdmin");
+
 // const notificationRouter = require("./src/routes/notification");
 dotenv.config();
 
@@ -92,6 +94,7 @@ app.use("/api/admin/category", categoryAdminRouter);
 app.use("/api/admin/complaint", complaintAdminRouter);
 app.use("/api/admin/user", userAdminRouter);
 app.use("/api/admin/dashboard", dashboardAdminRouter);
+app.use("/api/admin/job-banner", jobBannerAdminRouter);
 
 //Common router
 app.use("/", sitRouter);

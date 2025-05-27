@@ -17,6 +17,7 @@ const reviewModel = require("./review.model");
 const reviewVoteModel = require("./reviewVote.model");
 const userModel = require("./user.model");
 const transactionModel = require("./transaction.model");
+const jobBannerModel = require("./jobBanner.model");
 
 module.exports = {
   adminModel,
@@ -38,4 +39,5 @@ module.exports = {
   reviewVoteModel,
   userModel,
   transactionModel,
+  jobBannerModel,
 };

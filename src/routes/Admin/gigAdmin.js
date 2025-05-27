@@ -37,5 +37,17 @@ RouterGigAdmin.get(
   roleMiddleware("admin"),
   gigAdminController.getAllGig
 );
+RouterGigAdmin.get(
+  "/get-hot-jobs",
+  authUser,
+  roleMiddleware("admin"),
+  gigAdminController.getHotJobs
+);
+RouterGigAdmin.patch(
+  "/toggle-hot/:idGig",
+  authUser,
+  roleMiddleware("admin"),
+  gigAdminController.toggleHotJob
+);
 
 module.exports = RouterGigAdmin;
