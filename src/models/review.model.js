@@ -39,9 +39,8 @@ const reviewSchema = new mongoose.Schema(
       default: null,
     },
     isResponse: {
-      type: mongoose.Types.ObjectId,
-      ref: "Response",
-      default: null,
+      type: Boolean,
+      default: false,
     },
   },
   {
