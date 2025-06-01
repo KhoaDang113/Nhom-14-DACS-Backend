@@ -1,6 +1,7 @@
 const { userModel, categoryModel } = require("../models");
 async function formatGig(gig) {
   const user = await userModel.findOne({ clerkId: gig.freelancerId });
+  const category = await categoryModel.findById(gig.category_id);
   return {
     _id: gig._id,
     title: gig.title,
@@ -10,7 +11,12 @@ async function formatGig(gig) {
     duration: gig.duration,
     views: gig.views || 0,
     ordersCompleted: gig.ordersCompleted || 0,
-    category_id: gig.category_id,
+    category: {
+      _id: category?._id || null,
+      name: category?.name || null,
+    },
+    star: gig.star || 0,
+    ratingsCount: gig.ratingsCount || 0,
     createdAt: gig.createdAt,
     freelancer: {
       name: user?.name || null,

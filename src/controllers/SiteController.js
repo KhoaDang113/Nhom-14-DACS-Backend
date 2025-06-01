@@ -49,7 +49,7 @@ const getDetailGig = catchAsync(async (req, res) => {
       isDeleted: false,
     })
     .select(
-      "_id freelancerId category_id views status ordersCompleted title description price media duration"
+      "_id freelancerId category_id views status ordersCompleted title description price media duration star ratingsCount createdAt updatedAt"
     )
     .lean();
   if (!gig) throw new CustomException("Gig not found", 404);
@@ -122,7 +122,7 @@ const searchGig = catchAsync(async (req, res) => {
   let gigsQuery = gigModel
     .find(query)
     .select(
-      "_id title description keywords price media duration status category_id freelancerId views ordersCompleted createdAt"
+      "_id title description keywords price media duration status category_id freelancerId views ordersCompleted createdAt updatedAt star ratingsCount"
     );
   if (query.$text) {
     gigsQuery = gigsQuery
@@ -135,16 +135,12 @@ const searchGig = catchAsync(async (req, res) => {
     .skip((page - 1) * parseInt(limit))
     .limit(parseInt(limit))
     .lean();
-  if (!gigs.length) {
-    throw new CustomException("No gigs found", 404);
-  }
   const formattedGigs = await formatGigs(gigs);
   const total = await gigModel.countDocuments(query);
   const totalPages = Math.ceil(total / parseInt(limit));
-
   return res.status(200).json({
     error: false,
-    message: "Gigs retrieved successfully",
+    message: gigs.length ? "Gigs retrieved successfully" : "No gigs found",
     totalPages,
     totalResults: total,
     gigs: formattedGigs,

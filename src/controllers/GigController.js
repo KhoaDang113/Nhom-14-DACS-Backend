@@ -23,6 +23,8 @@ const createGig = catchAsync(async (req, res) => {
       category_id: gig.category_id,
       status: gig.status,
       views: gig.views || 0,
+      star: gig.star || 0,
+      ratingsCount: gig.ratingsCount || 0,
       ordersCompleted: gig.ordersCompleted || 0,
     },
   });
@@ -43,7 +45,7 @@ const getSingleGig = catchAsync(async (req, res) => {
   const gig = await gigModel
     .findById(req.params.id)
     .select(
-      "_id title description category_id price media views ordersCompleted duration"
+      "_id title description category_id price media views ordersCompleted duration star ratingsCount createdAt updatedAt"
     );
   if (!gig) {
     throw new CustomException("Gig not found!", 404);
@@ -62,7 +64,7 @@ const getListGig = catchAsync(async (req, res) => {
   const gigs = await gigModel
     .find(query)
     .select(
-      "title description price media duration status category_id views ordersCompleted createdAt updatedAt"
+      "title description price media duration status category_id views ordersCompleted createdAt updatedAt star ratingsCount"
     )
     .skip((page - 1) * 10)
     .limit(Number(10))

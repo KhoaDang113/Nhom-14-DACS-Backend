@@ -97,6 +97,15 @@ const createReview = catchAsync(async (req, res) => {
     duration: gig.duration,
     orderId: orderId || null,
   });
+  const gigUpdate = await gigModel.findById(idGig);
+  if (!gigUpdate) {
+    throw new CustomException("Failed to update gig ratings", 500);
+  }
+  gigUpdate.star =
+    (gigUpdate.star * gigUpdate.ratingsCount + newReview.star) /
+    (gigUpdate.ratingsCount + 1);
+  gigUpdate.ratingsCount += 1;
+  await gigUpdate.save();
   const reviewObj = filteredReview(newReview.toObject());
   return res.status(200).json({
     error: false,

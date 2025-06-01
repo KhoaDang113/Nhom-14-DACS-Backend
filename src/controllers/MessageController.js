@@ -1,6 +1,5 @@
 const { messageModel, conversationModel } = require("../models");
 const { CustomException, catchAsync } = require("../utils");
-
 const createMessage = catchAsync(async (req, res) => {
   const { conversationId, content } = req.body;
   const io = req.io;
@@ -31,7 +30,7 @@ const createMessage = catchAsync(async (req, res) => {
   if (req.file) {
     messageData.attachment = {
       url: req.file.path,
-      name: req.file.originalname,
+      name: Buffer.from(req.file.originalname, "latin1").toString(),
       type: req.file.mimetype,
       size: req.file.size,
     };

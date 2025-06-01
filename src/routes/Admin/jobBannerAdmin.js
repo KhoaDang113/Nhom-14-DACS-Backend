@@ -22,4 +22,26 @@ jobBannerRouter.get(
   jobBannerController.getListJobBanner
 );
 
+jobBannerRouter.put(
+  "/update/:id",
+  authUser,
+  uploadCloud.single("file"),
+  roleMiddleware("admin"),
+  jobBannerController.updateJobBanner
+);
+
+jobBannerRouter.delete(
+  "/delete/:id",
+  authUser,
+  roleMiddleware("admin"),
+  jobBannerController.deletedJobBanner
+);
+
+jobBannerRouter.get(
+  "/get/:id",
+  authUser,
+  roleMiddleware("admin"),
+  jobBannerController.getJobBannerById
+);
+
 module.exports = jobBannerRouter;

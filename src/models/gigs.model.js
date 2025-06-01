@@ -46,6 +46,14 @@ const gigSchema = new mongoose.Schema(
     views: { type: Number, default: 0 },
     ordersCompleted: { type: Number, default: 0 },
     isHot: { type: Boolean, default: false },
+    star: {
+      type: mongoose.Schema.Types.Decimal128,
+      default: 0,
+    },
+    ratingsCount: {
+      type: Number,
+      default: 0,
+    },
     approved_by: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
