@@ -51,18 +51,28 @@ const createIsHelpFull = catchAsync(async (req, res) => {
 
 const getVote = catchAsync(async (req, res) => {
   const { idReview } = req.params;
+
   const review = await reviewModel.findById(idReview);
   if (!review) {
     throw new CustomException("Review not found", 404);
   }
-  const votes = await reviewVoteModel
-    .find({ reviewId: idReview, userId: req.user._id })
-    .select("_id isHelpFull");
+
+  const totalVotes = await reviewVoteModel.find({ reviewId: idReview });
+  const likeCount = totalVotes.filter((v) => v.isHelpFull === "like").length;
+  const dislikeCount = totalVotes.filter(
+    (v) => v.isHelpFull === "dislike"
+  ).length;
+
+  const userVote = totalVotes.find(
+    (v) => v.userId.toString() === req.user._id.toString()
+  );
 
   return res.status(200).json({
     success: true,
     message: "Vote retrieved successfully",
-    votes,
+    vote: userVote ? userVote.isHelpFull : "none",
+    likeCount,
+    dislikeCount,
   });
 });
 

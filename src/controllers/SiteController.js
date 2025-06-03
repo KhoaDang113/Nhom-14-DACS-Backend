@@ -71,7 +71,7 @@ const searchGig = catchAsync(async (req, res) => {
     minPrice,
     maxPrice,
     page = 1,
-    limit = 10,
+    limit = 12,
     sortBy = "recommended",
   } = req.query;
   const query = {
