@@ -2,15 +2,37 @@ const { userModel } = require("../models");
 const { catchAsync, CustomException } = require("../utils");
 
 const getMe = catchAsync(async (req, res) => {
-  const user = await userModel.findOne({ clerkId: req.UserID });
-  if (!user) {
-    throw new CustomException("User not found", 404);
-  }
+  const user = await userModel.findById(req.user._id).select("-__v");
   res.status(200).json({
     error: false,
-    message: "User details",
+    message: "User details retrieved successfully.",
     user,
   });
 });
 
-module.exports = { getMe };
+const getUserById = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+
+  const user = await userModel
+    .findById(userId)
+    .select("name email avatar role createdAt")
+    .lean();
+
+  if (!user) {
+    return res.status(404).json({
+      error: true,
+      message: "Không tìm thấy người dùng",
+    });
+  }
+
+  return res.status(200).json({
+    error: false,
+    message: "Lấy thông tin người dùng thành công",
+    user,
+  });
+});
+
+module.exports = {
+  getMe,
+  getUserById,
+};

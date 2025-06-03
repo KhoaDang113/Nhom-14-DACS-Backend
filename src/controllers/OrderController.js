@@ -316,15 +316,18 @@ const getOrderById = catchAsync(async (req, res) => {
   // Get freelancer details
   const freelancer = await userModel
     .findOne({ clerkId: order.freelancerId })
-    .select("name avatar")
+    .select("name avatar _id")
     .lean();
 
   // Enhance order object with freelancer details
   const enhancedOrder = {
     ...order,
-    freelancerName: freelancer?.name || "Người bán",
-    freelancerAvatar:
-      freelancer?.avatar || "https://randomuser.me/api/portraits/men/42.jpg",
+    freelancerInfo: {
+      name: freelancer?.name || "Người bán",
+      avatar:
+        freelancer?.avatar || "https://randomuser.me/api/portraits/men/42.jpg",
+      _id: freelancer?._id || null,
+    },
   };
 
   return res.status(200).json({
