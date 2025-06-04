@@ -1,6 +1,7 @@
 const { Webhook } = require("svix");
 const User = require("../models/user.model");
 const dotenv = require("dotenv");
+const userModel = require("../models/user.model");
 dotenv.config();
 
 const SIGNING_SECRET = process.env.CLERK_WEBHOOK_SECRET_KEY;
@@ -38,6 +39,21 @@ const handleWebHook = async (req, res) => {
 
       await user.save();
       console.log("User is created ");
+    } else if (evenType === "user.updated") {
+      // const user = await userModel.findOne({ clerkId: id });
+      const nameUser = `${atributes.first_name} ${atributes.last_name}`;
+      const avatar = atributes.profile_image_url;
+
+      await User.findOneAndUpdate(
+        { clerkId: id },
+        {
+          name: nameUser,
+          avatar: avatar,
+        },
+        { new: true }
+      );
+
+      console.log("User is updated");
     }
     return res.status(200).json({
       success: true,

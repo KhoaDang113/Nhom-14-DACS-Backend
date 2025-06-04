@@ -32,7 +32,32 @@ const getUserById = catchAsync(async (req, res) => {
   });
 });
 
+// const updateUser = catchAsync(async (req, res) => {
+//   const { userId } = req.params;
+//   const { name, avatar } = req.body;
+
+//   const user = await userModel.findByIdAndUpdate(
+//     userId,
+//     { name, avatar },
+//     { new: true, runValidators: true }
+//   );
+
+//   if (!user) {
+//     return res.status(404).json({
+//       error: true,
+//       message: "Không tìm thấy người dùng",
+//     });
+//   }
+
+//   return res.status(200).json({
+//     error: false,
+//     message: "Cập nhật thông tin người dùng thành công",
+//     user,
+//   });
+// });
+
 module.exports = {
   getMe,
   getUserById,
+  // updateUser,
 };

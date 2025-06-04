@@ -14,10 +14,23 @@ const createMessageValidator = [
       const allowedTypes = [
         "image/jpeg",
         "image/png",
+        "image/gif",
+        "image/webp",
+        "image/bmp",
+
+        // Tài liệu
         "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/msword", // .doc
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+        "application/vnd.ms-excel", // .xls
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+        "text/plain", // .txt
+        "application/rtf", // .rtf
+        "application/vnd.oasis.opendocument.text", // .odt
+        "application/vnd.ms-powerpoint", // .ppt
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
         "video/mp4",
+        "video/quicktime",
       ];
 
       if (!allowedTypes.includes(req.file.mimetype)) {
